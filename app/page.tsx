@@ -1,593 +1,126 @@
 "use client";
 
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useState } from "react";
 
 const navItems = [
-  { id: "origin", label: "觉醒" },
-  { id: "arsenal", label: "能力" },
-  { id: "missions", label: "经历" },
-  { id: "impact", label: "战绩" },
-  { id: "network", label: "社群" },
-  { id: "next", label: "进阶" },
+  { id: "personal", label: "个人" },
+  { id: "society", label: "社会世界" },
+  { id: "nature", label: "自然世界" },
+  { id: "contact", label: "联系方式" },
 ];
 
 const skills = [
-  { code: "U5", name: "Unreal Engine 5", role: "实时世界构筑", note: "REAL-TIME" },
-  { code: "HO", name: "Houdini", role: "程序化生成", note: "PROCEDURAL" },
-  { code: "NU", name: "Nuke", role: "视觉合成", note: "COMPOSITING" },
-  { code: "MY", name: "Maya", role: "三维制作", note: "3D CRAFT" },
-  { code: "AI", name: "AI Tools", role: "智能生产力", note: "AUGMENTED" },
+  ["三维世界构筑", "Unreal Engine 5 · Houdini · Maya · Nuke"],
+  ["AI 生产力", "AI 工具探索 · 产品测评 · 工作流实践"],
+  ["内容增长", "选题 · 剪辑 · 文字表达 · 多平台运营"],
+  ["通用能力", "英语 · 记忆术 · 持续学习 · 组织领导"],
+];
+
+const honors = [
+  ["211", "本科科班背景"],
+  ["省级铜奖", "国创赛"],
+  ["院级一等奖", "国创赛"],
+  ["校级立项", "大学生创新创业"],
+  ["校级一等奖", "三创赛 · 中医 AI 项目队长"],
+  ["职业资格", "游泳救生员与教练"],
+  ["学生会主席", "早期组织与领导经验"],
 ];
 
 const experiences = [
-  {
-    index: "01",
-    company: "腾讯 QQ",
-    role: "短视频运营",
-    text: "在大厂内容场景中理解短视频节奏、平台机制与用户反馈。",
-    tag: "CONTENT OPS",
-  },
-  {
-    index: "02",
-    company: "中国移动",
-    role: "营销实践",
-    text: "从品牌传播和用户触达视角，补足对营销链路的理解。",
-    tag: "MARKETING",
-  },
-  {
-    index: "03",
-    company: "知乎",
-    role: "内容运营",
-    text: "深入图文内容生态，训练选题、表达与社区语境判断。",
-    tag: "EDITORIAL",
-  },
-  {
-    index: "04",
-    company: "公考机构",
-    role: "全媒体运营",
-    text: "参与多平台内容生产与分发，积累全媒体协同经验。",
-    tag: "OMNIMEDIA",
-  },
-  {
-    index: "05",
-    company: "36氪",
-    role: "AI 产品内容测评",
-    text: "围绕 AI 产品展开体验、测评与表达，让复杂技术被更多人理解。",
-    tag: "AI REVIEW",
-  },
-];
-
-const achievements = [
-  { mark: "省铜", title: "国创赛", detail: "省级铜奖", tone: "violet" },
-  { mark: "院一", title: "国创赛", detail: "院级一等奖", tone: "blue" },
-  { mark: "立项", title: "大学生创新创业", detail: "校级立项", tone: "cyan" },
-  { mark: "队长", title: "三创赛 · 中医 AI", detail: "校级一等奖", tone: "amber" },
+  ["腾讯 QQ", "短视频运营", "在大厂内容场景中理解平台机制、内容节奏与用户反馈。"],
+  ["中国移动", "营销实践", "从品牌传播与用户触达视角，理解完整营销链路。"],
+  ["知乎", "内容运营", "深入图文生态，训练选题、表达与社区语境判断。"],
+  ["公考机构", "全媒体运营", "参与多平台内容生产与分发，积累全媒体协同经验。"],
+  ["36氪", "AI 产品内容测评", "围绕 AI 产品展开体验、测评与表达，让复杂技术被更多人理解。"],
 ];
 
 const platforms = [
-  { name: "视频号", followers: "16,000", reach: "200W+ 爆款播放", group: "CN", size: "xl" },
-  { name: "Instagram", followers: "5,000", reach: "190W+ 爆款播放", group: "GLOBAL", size: "lg" },
-  { name: "抖音 · 双账号", followers: "5,300", reach: "180W+ / 300W+ 流量作品", group: "CN", size: "lg" },
-  { name: "微博", followers: "3,000", reach: "持续内容沉淀", group: "CN", size: "md" },
-  { name: "知乎", followers: "1,400", reach: "多篇高赞原创", group: "CN", size: "md" },
-  { name: "小红书", followers: "1,100", reach: "内容矩阵分发", group: "CN", size: "md" },
-  { name: "微信公众号", followers: "300", reach: "2 × 10W+ 图文", group: "CN", size: "sm" },
-  { name: "Threads / TikTok", followers: "130 / 100", reach: "海外阵地生长中", group: "GLOBAL", size: "sm" },
+  ["视频号", "16,000", "200W+ 爆款播放"],
+  ["Instagram", "5,000", "190W+ 爆款播放"],
+  ["抖音 · 双账号", "5,300", "180W+ / 300W+ 流量作品"],
+  ["微博", "3,000", "持续内容沉淀"],
+  ["知乎", "1,400", "多篇高赞原创"],
+  ["小红书", "1,100", "内容矩阵分发"],
+  ["微信公众号", "300", "2 篇 10W+ 图文"],
+  ["Threads / TikTok", "130 / 100", "海外阵地生长中"],
 ];
 
-const futureItems = [
-  { no: "01", name: "VENTURE", cn: "创业计划", status: "问题探索中", glyph: "↗" },
-  { no: "02", name: "MUSIC LAB", cn: "音乐作品", status: "学习与制作中", glyph: "≈" },
-  { no: "03", name: "LONGFORM", cn: "书籍与长期写作", status: "构思中", glyph: "¶" },
-  { no: "04", name: "PUBLIC RECORD", cn: "报道与百科", status: "尚未解锁", glyph: "◇" },
+const outputs = [
+  ["01", "实习实践", "腾讯 QQ、中国移动、知乎、公考机构、36氪，以及网易云音乐大使、腾讯青科实训营、阿里云 AI 实践、网易小蜜蜂与 AI 工作坊。"],
+  ["02", "社群", "校园万人频道管理员、千人社群管理、10+ 百人内容社群、百人频道主，以及 AI 与校园社群实践。"],
+  ["03", "自媒体", "覆盖中外多个内容平台，形成 25K+ 粉丝矩阵；单个作品最高获得 300W+ 流量。"],
+  ["04", "书籍", "长期写作与书籍计划正在构思，把短内容判断力沉淀为更完整的表达。"],
+  ["05", "创业公司", "创业计划处于问题探索阶段，目标是让技术、内容和真实需求形成可持续产品。"],
+  ["06", "百科 · 公共影响力", "报道、百科与公共记录尚在积累，以可验证的作品和社会价值作为未来入口。"],
 ];
-
-function CountUp({ target, suffix = "", label }: { target: number; suffix?: string; label: string }) {
-  const [value, setValue] = useState(0);
-  const ref = useRef<HTMLSpanElement>(null);
-
-  useEffect(() => {
-    const node = ref.current;
-    if (!node) return;
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduced) {
-      setValue(target);
-      return;
-    }
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (!entry.isIntersecting) return;
-        const started = performance.now();
-        const duration = 900;
-        const tick = (now: number) => {
-          const progress = Math.min((now - started) / duration, 1);
-          const eased = 1 - Math.pow(1 - progress, 4);
-          setValue(Math.round(target * eased));
-          if (progress < 1) requestAnimationFrame(tick);
-        };
-        requestAnimationFrame(tick);
-        observer.disconnect();
-      },
-      { threshold: 0.45 },
-    );
-    observer.observe(node);
-    return () => observer.disconnect();
-  }, [target]);
-
-  return (
-    <span className="count-wrap" aria-label={`${target}${suffix} ${label}`}>
-      <span ref={ref} aria-hidden="true">
-        {value}
-        {suffix}
-      </span>
-    </span>
-  );
-}
 
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [activeSection, setActiveSection] = useState("origin");
-  const [openMission, setOpenMission] = useState<number | null>(0);
+  const [activeSection, setActiveSection] = useState("personal");
 
   useEffect(() => {
-    const root = document.documentElement;
-    let frame = 0;
-    const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
-
-    const updatePointer = (event: PointerEvent) => {
-      if (!finePointer) return;
-      cancelAnimationFrame(frame);
-      frame = requestAnimationFrame(() => {
-        root.style.setProperty("--pointer-x", `${event.clientX}px`);
-        root.style.setProperty("--pointer-y", `${event.clientY}px`);
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) entry.target.classList.add("is-visible");
       });
-    };
-
-    const updateProgress = () => {
-      const range = document.documentElement.scrollHeight - window.innerHeight;
-      const progress = range > 0 ? window.scrollY / range : 0;
-      root.style.setProperty("--scroll-progress", `${Math.min(progress * 100, 100)}%`);
-    };
-
-    const revealObserver = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("is-visible");
-            revealObserver.unobserve(entry.target);
-          }
-        });
-      },
-      { threshold: 0.12 },
-    );
-
-    const sectionObserver = new IntersectionObserver(
-      (entries) => {
-        const current = entries
-          .filter((entry) => entry.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-        if (current?.target.id) setActiveSection(current.target.id);
-      },
-      { rootMargin: "-35% 0px -55%", threshold: [0, 0.25, 0.6] },
-    );
-
+    }, { threshold: 0.08 });
+    const sectionObserver = new IntersectionObserver((entries) => {
+      const current = entries.filter((entry) => entry.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+      if (current?.target.id) setActiveSection(current.target.id);
+    }, { rootMargin: "-30% 0px -55%", threshold: [0, .2, .6] });
     document.querySelectorAll(".reveal").forEach((item) => revealObserver.observe(item));
     document.querySelectorAll("main section[id]").forEach((item) => sectionObserver.observe(item));
-    window.addEventListener("pointermove", updatePointer, { passive: true });
-    window.addEventListener("scroll", updateProgress, { passive: true });
-    updateProgress();
-
-    const tiltItems = Array.from(document.querySelectorAll<HTMLElement>("[data-tilt]"));
-    const tiltHandlers = tiltItems.map((item) => {
-      const move = (event: PointerEvent) => {
-        if (!finePointer) return;
-        const rect = item.getBoundingClientRect();
-        const x = (event.clientX - rect.left) / rect.width - 0.5;
-        const y = (event.clientY - rect.top) / rect.height - 0.5;
-        item.style.setProperty("--tilt-x", `${y * -5}deg`);
-        item.style.setProperty("--tilt-y", `${x * 5}deg`);
-      };
-      const leave = () => {
-        item.style.setProperty("--tilt-x", "0deg");
-        item.style.setProperty("--tilt-y", "0deg");
-      };
-      item.addEventListener("pointermove", move);
-      item.addEventListener("pointerleave", leave);
-      return { item, move, leave };
-    });
-
-    return () => {
-      cancelAnimationFrame(frame);
-      revealObserver.disconnect();
-      sectionObserver.disconnect();
-      window.removeEventListener("pointermove", updatePointer);
-      window.removeEventListener("scroll", updateProgress);
-      tiltHandlers.forEach(({ item, move, leave }) => {
-        item.removeEventListener("pointermove", move);
-        item.removeEventListener("pointerleave", leave);
-      });
-    };
+    return () => { revealObserver.disconnect(); sectionObserver.disconnect(); };
   }, []);
 
   return (
     <>
-      <a className="skip-link" href="#main-content">
-        跳至主要内容
-      </a>
-      <div className="reading-progress" aria-hidden="true" />
-      <div className="ambient-glow" aria-hidden="true" />
-
+      <a className="skip-link" href="#main-content">跳至主要内容</a>
       <header className="site-header">
-        <a className="brand" href="#origin" aria-label="返回首页">
-          <span className="brand-mark">A</span>
-          <span>
-            ASCENDER
-            <small>ARCHIVE // 01</small>
-          </span>
-        </a>
-
+        <a className="brand" href="#top" aria-label="返回首页"><span className="brand-mark">A</span><span>ASCENDER<small>PERSONAL ARCHIVE</small></span></a>
         <nav className={menuOpen ? "main-nav is-open" : "main-nav"} aria-label="主导航">
-          {navItems.map((item) => (
-            <a
-              key={item.id}
-              href={`#${item.id}`}
-              className={activeSection === item.id ? "is-active" : ""}
-              onClick={() => setMenuOpen(false)}
-            >
-              {item.label}
-            </a>
-          ))}
+          {navItems.map((item) => <a key={item.id} href={`#${item.id}`} className={activeSection === item.id ? "is-active" : ""} onClick={() => setMenuOpen(false)}>{item.label}</a>)}
         </nav>
-
-        <div className="header-actions">
-          <span className="status-pill"><i /> ONLINE</span>
-          <button
-            className="menu-button"
-            type="button"
-            aria-label="切换导航菜单"
-            aria-expanded={menuOpen}
-            onClick={() => setMenuOpen((value) => !value)}
-          >
-            <span />
-            <span />
-          </button>
-        </div>
+        <div className="header-actions"><span className="status-pill"><i /> OPEN TO CREATE</span><button className="menu-button" type="button" aria-label="切换导航菜单" aria-expanded={menuOpen} onClick={() => setMenuOpen(!menuOpen)}><span /><span /></button></div>
       </header>
 
       <main id="main-content">
-        <section className="hero" id="origin">
+        <section className="hero new-hero" id="top">
           <div className="hero-grid" aria-hidden="true" />
-          <div className="hero-art" aria-hidden="true">
-            <div className="art-veil" />
-          </div>
-          <div className="legion" aria-hidden="true">
-            {Array.from({ length: 13 }).map((_, index) => (
-              <span
-                className="wraith"
-                key={index}
-                style={{ "--i": index, "--spread": index - 6 } as CSSProperties}
-              />
-            ))}
-          </div>
-          <div className="ascender-silhouette" aria-hidden="true">
-            <span className="aura" />
-            <span className="head" />
-            <span className="body" />
-            <span className="blade" />
-          </div>
-
           <div className="hero-copy">
-            <div className="eyebrow hero-stagger">CROSS-DISCIPLINARY CREATOR · AWAKENING</div>
-            <h1 className="hero-stagger">
-              一人，<br />
-              即一支<span>军团。</span>
-            </h1>
-            <p className="hero-intro hero-stagger">
-              211 科班底色 × 3D 视觉技术 × AI 内容探索 × 全网 25K+ 影响力。
-              <br />
-              让技术、内容与连接能力并肩作战。
-            </p>
-            <div className="hero-tags hero-stagger" aria-label="核心身份">
-              <span>3D WORLD BUILDING</span>
-              <span>AI EXPLORATION</span>
-              <span>CONTENT GROWTH</span>
-              <span>COMMUNITY LEADERSHIP</span>
-            </div>
-            <div className="hero-actions hero-stagger">
-              <a className="button button-primary" href="#arsenal">
-                <span>查看能力面板</span><b>↘</b>
-              </a>
-              <a className="button button-ghost" href="#impact">
-                查看战绩 <span>→</span>
-              </a>
-            </div>
+            <div className="eyebrow hero-stagger">PERSON · SOCIETY · NATURE</div>
+            <h1 className="hero-stagger">向内生长，<br />向外<span>创造。</span></h1>
+            <p className="hero-intro hero-stagger">一个跨界数字创作者的个人档案：从能力、输入与输出出发，持续理解社会，也重新连接自然世界。</p>
+            <div className="hero-actions hero-stagger"><a className="button button-primary" href="#personal">打开个人档案 <b>↘</b></a><a className="button button-ghost" href="#society">进入社会世界 →</a></div>
           </div>
-
-          <aside className="player-panel glass-card hero-stagger" data-tilt aria-label="角色能力档案">
-            <div className="panel-topline">
-              <span>PLAYER PROFILE</span>
-              <span>LEVEL 01 → ∞</span>
-            </div>
-            <div className="player-title">
-              <small>CLASS</small>
-              <strong>跨界数字创作者</strong>
-              <span>MULTI-DISCIPLINARY BUILDER</span>
-            </div>
-            <div className="attribute-list">
-              <div><span>VISUAL</span><i><b style={{ width: "88%" }} /></i><em>构筑</em></div>
-              <div><span>CONTENT</span><i><b style={{ width: "95%" }} /></i><em>传播</em></div>
-              <div><span>NETWORK</span><i><b style={{ width: "91%" }} /></i><em>连接</em></div>
-              <div><span>STAMINA</span><i><b style={{ width: "84%" }} /></i><em>长期</em></div>
-            </div>
-            <div className="panel-footer">
-              <span><i /> SYSTEM ACTIVE</span>
-              <span>SEOUL · CN</span>
-            </div>
-          </aside>
-
-          <div className="hero-metrics hero-stagger" aria-label="核心数据">
-            <div><strong>25K+</strong><span>全平台粉丝矩阵</span></div>
-            <div><strong>300W+</strong><span>单作流量峰值</span></div>
-            <div><strong>10+</strong><span>百人内容社群</span></div>
-            <div><strong>130h+</strong><span>志愿服务</span></div>
-          </div>
-
-          <a className="scroll-cue" href="#manifesto" aria-label="继续向下浏览">
-            <span>SCROLL TO UNLOCK</span>
-            <i />
-          </a>
+          <div className="world-map hero-stagger" aria-label="三部分内容结构"><a href="#personal"><small>01</small><strong>个人</strong><span>实力与背书 · 输入 · 输出</span></a><a href="#society"><small>02</small><strong>社会世界</strong><span>连接 · 协作 · 公共影响</span></a><a href="#nature"><small>03</small><strong>自然世界</strong><span>身体 · 感知 · 长期主义</span></a></div>
         </section>
 
-        <section className="manifesto section-shell" id="manifesto">
-          <div className="section-index reveal">00 / ORIGIN</div>
-          <div className="manifesto-grid">
-            <p className="manifesto-kicker reveal">NOT A LIST OF TITLES.<br />A SYSTEM OF ABILITIES.</p>
-            <div className="manifesto-copy reveal">
-              <h2>跨界不是分散，<br />而是建立自己的<span>能力系统。</span></h2>
-              <p>
-                我用三维技术构筑世界，用内容能力获得传播，用 AI 提升生产效率，再用社群把人与机会连接起来。
-                真正的升级，不是收集更多标签，而是让每一种能力都能在真实项目中发挥作用。
-              </p>
-            </div>
-          </div>
+        <section className="section-shell personal" id="personal">
+          <div className="section-heading reveal"><div><span className="section-index">01 / PERSONAL</span><h2>个人</h2></div><p>个人不是标签的集合，而是一套由实力、输入与输出构成，并持续循环升级的系统。</p></div>
+
+          <div className="chapter-block reveal" id="strength"><div className="chapter-intro"><span>01—A</span><h3>个人实力与背书</h3><p>能力决定能做什么，背书证明我已经走过什么。</p></div><div className="strength-grid"><article className="glass-card"><span className="card-label">PERSONAL CAPABILITIES</span>{skills.map(([title, detail]) => <div className="ability-row" key={title}><strong>{title}</strong><p>{detail}</p></div>)}</article><article className="glass-card"><span className="card-label">HONORS & CREDENTIALS</span><div className="honor-cloud">{honors.map(([title, detail]) => <div key={title}><strong>{title}</strong><span>{detail}</span></div>)}</div></article></div></div>
+
+          <div className="chapter-block reveal" id="input"><div className="chapter-intro"><span>01—B</span><h3>输入</h3><p>持续学习、观察与体验，是能力更新的原料。</p></div><div className="input-grid"><article><b>系统学习</b><h4>科班训练 × 技术工具</h4><p>以 211 本科的系统训练建立专业认知，并持续学习实时引擎、程序化生成、三维制作、合成与 AI 工具。</p></article><article><b>跨域观察</b><h4>技术 × 内容 × 用户</h4><p>在中文互联网与海外平台中观察内容传播、社区语境、产品体验与真实反馈。</p></article><article><b>生活输入</b><h4>阅读 × 运动 × 审美</h4><p>从长期阅读、跑步、力量训练、游泳、素描与动漫中保持感知力，也为持续创造储备体力。</p></article></div></div>
+
+          <div className="chapter-block output-block reveal" id="output"><div className="chapter-intro"><span>01—C</span><h3>输出</h3><p>所有积累最终都要变成作品、实践、连接，以及可被社会感知的价值。</p></div><div className="output-grid">{outputs.map(([no, title, text]) => <article key={no}><span>{no}</span><h4>{title}</h4><p>{text}</p></article>)}</div><div className="experience-strip">{experiences.map(([company, role, text]) => <article key={company}><small>{role}</small><h4>{company}</h4><p>{text}</p></article>)}</div></div>
         </section>
 
-        <section className="arsenal section-shell" id="arsenal">
-          <div className="section-heading reveal">
-            <div>
-              <span className="section-index">01 / SKILL ARSENAL</span>
-              <h2>能力军团</h2>
-            </div>
-            <p>每一项长期积累的能力，都是一名可以随时被召集的同行者。</p>
-          </div>
-
-          <div className="skill-bento">
-            <article className="skill-main glass-card reveal" data-tilt>
-              <div className="card-label"><span>CORE SYSTEM</span><i>ACTIVE</i></div>
-              <h3>三维世界构筑</h3>
-              <p>从实时引擎、程序化生成，到三维制作、渲染与后期合成。</p>
-              <div className="software-grid">
-                {skills.map((skill) => (
-                  <div className="software-item" key={skill.code}>
-                    <b>{skill.code}</b>
-                    <span><strong>{skill.name}</strong><small>{skill.role}</small></span>
-                    <em>{skill.note}</em>
-                  </div>
-                ))}
-              </div>
-            </article>
-
-            <article className="education-card glass-card reveal" data-tilt>
-              <div className="card-orbit" aria-hidden="true"><i /><i /><i /></div>
-              <span className="card-label">ACADEMIC BASE</span>
-              <strong>211</strong>
-              <h3>本科 · 科班底色</h3>
-              <p>用系统训练建立专业认知，再以跨界实践拓宽能力边界。</p>
-            </article>
-
-            <article className="content-card glass-card reveal" data-tilt>
-              <div className="card-label"><span>GROWTH ENGINE</span><i>PROVEN</i></div>
-              <h3>内容增长引擎</h3>
-              <p>短视频剪辑、自媒体运营、内容选题、文字表达与多平台分发。</p>
-              <div className="signal-bars" aria-hidden="true">
-                {Array.from({ length: 16 }).map((_, i) => <i key={i} style={{ height: `${24 + ((i * 17) % 68)}%` }} />)}
-              </div>
-              <span className="micro-copy">CREATE · DISTRIBUTE · GROW</span>
-            </article>
-
-            <article className="survival-card glass-card reveal" data-tilt>
-              <div className="card-label"><span>TRANSFERABLE</span><i>CORE</i></div>
-              <h3>现实生存能力</h3>
-              <div className="core-skill-list">
-                <span>英语 <small>ENGLISH</small></span>
-                <span>记忆术 <small>MEMORY</small></span>
-                <span>游泳 <small>SWIMMING</small></span>
-                <span>持续学习 <small>EVOLVE</small></span>
-              </div>
-              <p className="cert-note">国家职业资格 · 游泳救生员与教练</p>
-            </article>
-          </div>
+        <section className="impact section-shell society" id="society">
+          <div className="section-heading reveal"><div><span className="section-index">02 / SOCIAL WORLD</span><h2>社会世界</h2></div><p>通过内容、社群与协作进入更大的关系网络，让个人输出在真实世界中产生回声。</p></div>
+          <div className="impact-dashboard reveal"><article className="impact-primary glass-card"><span className="data-label">PUBLIC REACH</span><strong className="big-number">25K+</strong><p>全平台粉丝矩阵</p></article><article className="impact-stat glass-card"><span>PEAK FLOW</span><strong>300W+</strong><p>单作流量峰值</p></article><article className="impact-stat glass-card"><span>COMMUNITIES</span><strong>10+</strong><p>百人内容社群</p></article><article className="impact-stat glass-card"><span>SERVICE</span><strong>130h+</strong><p>志愿服务</p></article></div>
+          <div className="platform-grid">{platforms.map(([name, followers, reach], index) => <article className="platform-card reveal" key={name}><div><span>{String(index + 1).padStart(2, "0")}</span><em>PLATFORM</em></div><h3>{name}</h3><strong>{followers}<small> FOLLOWERS</small></strong><p>{reach}</p></article>)}</div>
+          <div className="social-note reveal"><strong>连接不是数字。</strong><p>校园万人频道管理员、千人社群管理、百人频道主和 AI 社群实践，让影响力从“被看见”走向“让事情发生”。</p></div>
         </section>
 
-        <section className="missions section-shell" id="missions">
-          <div className="section-heading reveal">
-            <div>
-              <span className="section-index">02 / EXPERIENCE LOG</span>
-              <h2>任务记录</h2>
-            </div>
-            <p>在大厂、内容平台、教育机构与 AI 项目中，建立对内容、用户与技术产品的复合认知。</p>
-          </div>
-
-          <div className="mission-layout">
-            <div className="mission-list reveal">
-              {experiences.map((item, index) => {
-                const expanded = openMission === index;
-                return (
-                  <article className={expanded ? "mission-item is-open" : "mission-item"} key={item.company}>
-                    <button
-                      type="button"
-                      aria-expanded={expanded}
-                      onClick={() => setOpenMission(expanded ? null : index)}
-                    >
-                      <span className="mission-number">{item.index}</span>
-                      <span className="mission-name"><strong>{item.company}</strong><small>{item.role}</small></span>
-                      <span className="mission-tag">{item.tag}</span>
-                      <i>{expanded ? "−" : "+"}</i>
-                    </button>
-                    <div className="mission-detail"><p>{item.text}</p></div>
-                  </article>
-                );
-              })}
-            </div>
-
-            <aside className="side-quests glass-card reveal">
-              <div className="side-quest-head">
-                <span>SIDE QUESTS</span><i>5 COMPLETE</i>
-              </div>
-              <h3>实践支线</h3>
-              <ul>
-                <li><b>01</b><span>网易云音乐大使</span><em>COMPLETE</em></li>
-                <li><b>02</b><span>腾讯青科实训营</span><em>COMPLETE</em></li>
-                <li><b>03</b><span>阿里云 AI 实践</span><em>COMPLETE</em></li>
-                <li><b>04</b><span>网易小蜜蜂</span><em>COMPLETE</em></li>
-                <li><b>05</b><span>AI 工作坊</span><em>COMPLETE</em></li>
-              </ul>
-              <div className="quest-footer"><span>EXPERIENCE GAINED</span><i /></div>
-            </aside>
-          </div>
-
-          <div className="achievement-grid">
-            {achievements.map((item) => (
-              <article className={`achievement-card ${item.tone} reveal`} key={`${item.title}-${item.mark}`} data-tilt>
-                <div className="achievement-mark"><span>{item.mark}</span></div>
-                <div><small>ACHIEVEMENT UNLOCKED</small><h3>{item.title}</h3><p>{item.detail}</p></div>
-              </article>
-            ))}
-          </div>
+        <section className="section-shell nature" id="nature">
+          <div className="section-heading reveal"><div><span className="section-index">03 / NATURAL WORLD</span><h2>自然世界</h2></div><p>回到身体、节律与感知。自然世界不是工作之外的装饰，而是长期输出的底盘。</p></div>
+          <div className="nature-grid"><article className="reveal"><span>BODY</span><h3>跑步 × 力量训练</h3><p>稳定的身体状态，支撑持续创造与长线进化。</p></article><article className="reveal"><span>WATER</span><h3>游泳救生员与教练</h3><p>一项与水相处的技能，也是一项能够保护他人的能力。</p></article><article className="reveal"><span>SENSE</span><h3>素描 × 动漫 × 审美</h3><p>从中学时期延续至今的视觉敏感度，构成叙事与创作的底色。</p></article><article className="reveal"><span>RHYTHM</span><h3>自我照料 × 规律生活</h3><p>护肤、训练与休息，让纪律变成可持续的日常节律。</p></article></div>
         </section>
 
-        <section className="impact section-shell" id="impact">
-          <div className="impact-glow" aria-hidden="true" />
-          <div className="section-heading reveal">
-            <div>
-              <span className="section-index">03 / DIGITAL INFLUENCE</span>
-              <h2>让内容穿过<br />平台边界。</h2>
-            </div>
-            <p>从图文到短视频，从中文互联网到海外平台，把真实反馈沉淀为可复用的内容判断力。</p>
-          </div>
-
-          <div className="impact-dashboard">
-            <article className="impact-primary glass-card reveal" data-tilt>
-              <span className="data-label">NETWORK REACH / CONFIRMED MINIMUM</span>
-              <CountUp target={25} suffix="K+" label="全平台粉丝矩阵" />
-              <p>全平台粉丝矩阵</p>
-              <div className="reach-track" aria-hidden="true"><i /><i /><i /><i /></div>
-              <div className="impact-foot"><span>CONTENT × COMMUNITY</span><span>2026 ARCHIVE</span></div>
-            </article>
-            <article className="impact-stat glass-card reveal">
-              <span>PEAK FLOW</span><strong>300W+</strong><p>抖音单作流量峰值</p><i className="stat-spark" />
-            </article>
-            <article className="impact-stat glass-card reveal">
-              <span>VIDEO CHANNEL</span><strong>200W+</strong><p>视频号爆款播放</p><i className="stat-spark alt" />
-            </article>
-            <article className="impact-stat glass-card reveal">
-              <span>GLOBAL REACH</span><strong>190W+</strong><p>Instagram 爆款播放</p><i className="stat-spark cyan" />
-            </article>
-          </div>
-
-          <div className="platform-header reveal">
-            <span>PLATFORM MATRIX</span>
-            <span>粉丝数据为各平台公开口径</span>
-          </div>
-          <div className="platform-grid">
-            {platforms.map((platform, index) => (
-              <article className={`platform-card ${platform.size} reveal`} key={platform.name}>
-                <div><span>{String(index + 1).padStart(2, "0")}</span><em>{platform.group}</em></div>
-                <h3>{platform.name}</h3>
-                <strong>{platform.followers}<small> FOLLOWERS</small></strong>
-                <p>{platform.reach}</p>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        <section className="network section-shell" id="network">
-          <div className="section-heading reveal">
-            <div>
-              <span className="section-index">04 / COMMUNITY LEADERSHIP</span>
-              <h2>连接，即是<br />另一种影响力。</h2>
-            </div>
-            <p>账号代表个人影响力，社群则证明了连接、协调与长期运营能力。</p>
-          </div>
-
-          <div className="network-stage reveal" aria-label="社群规模网络图">
-            <div className="network-rings" aria-hidden="true"><i /><i /><i /></div>
-            <div className="network-lines" aria-hidden="true">
-              {Array.from({ length: 6 }).map((_, i) => <i key={i} style={{ "--line-i": i } as CSSProperties} />)}
-            </div>
-            <div className="core-node"><small>CENTRAL NODE</small><strong>YOU</strong><span>内容连接人<br />社群放大可能</span></div>
-            <div className="satellite-node node-a"><strong>10,000</strong><span>校园万人频道<br />管理员</span></div>
-            <div className="satellite-node node-b"><strong>1,000+</strong><span>千人社群<br />管理经验</span></div>
-            <div className="satellite-node node-c"><strong>10+</strong><span>百人内容社群<br />抖音 · 小红书</span></div>
-            <div className="satellite-node node-d"><strong>100+</strong><span>百人频道主</span></div>
-            <div className="satellite-node node-e"><strong>AI</strong><span>AI 社群<br />校园社群</span></div>
-          </div>
-        </section>
-
-        <section className="reality section-shell" id="reality">
-          <div className="section-heading reveal">
-            <div>
-              <span className="section-index">05 / CORE STATS</span>
-              <h2>长期主义，<br />也写在身体里。</h2>
-            </div>
-            <p>现实世界的属性，不靠光效加成。稳定的身体、审美与纪律，是长期输出的底盘。</p>
-          </div>
-          <div className="reality-grid">
-            <article className="reality-card wide reveal"><span>01 / STAMINA</span><h3>跑步 × 力量训练</h3><p>让稳定的身体状态，支撑持续创造与长线进化。</p><div className="pulse-line" aria-hidden="true" /></article>
-            <article className="reality-card reveal"><span>02 / WATER</span><h3>游泳救生员<br />与教练</h3><p>国家职业资格，亦是一项真正能保护他人的能力。</p><b>QUALIFIED</b></article>
-            <article className="reality-card reveal"><span>03 / AESTHETIC</span><h3>素描 · 动漫</h3><p>从中学时期延续的视觉敏感度，构成审美与叙事的底色。</p><div className="sketch-lines" aria-hidden="true"><i /><i /><i /></div></article>
-            <article className="reality-card reveal"><span>04 / LEADERSHIP</span><h3>学生会主席</h3><p>领导力的起点，不是站在中心，而是组织人与推动事情发生。</p><b>EARLY ORIGIN</b></article>
-            <article className="reality-card wide reveal"><span>05 / SELF MANAGEMENT</span><h3>形象管理 × 自我照料</h3><p>护肤、训练与规律生活。自律不是展示，而是维持状态的日常系统。</p><div className="routine-tags"><i>DISCIPLINE</i><i>CONSISTENCY</i><i>CARE</i></div></article>
-          </div>
-        </section>
-
-        <section className="future section-shell" id="next">
-          <div className="future-heading reveal">
-            <span className="section-index">06 / INCUBATING</span>
-            <h2>地图仍在扩张。<br /><span>下一章，尚未命名。</span></h2>
-            <p>真正值得期待的，不是已经获得的称号，而是下一次能够交付的作品。</p>
-          </div>
-          <div className="future-grid">
-            {futureItems.map((item) => (
-              <article className="future-card reveal" key={item.no} tabIndex={0}>
-                <div><span>{item.no}</span><i>LOCKED / INCUBATING</i></div>
-                <b aria-hidden="true">{item.glyph}</b>
-                <h3>{item.name}<small>{item.cn}</small></h3>
-                <p><i /> {item.status}</p>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        <section className="contact section-shell" id="contact">
-          <div className="contact-panel reveal">
-            <div className="contact-orb" aria-hidden="true"><i /><i /><i /></div>
-            <span className="section-index">07 / NEXT MISSION</span>
-            <h2>下一场任务，<br />是否与你有关？</h2>
-            <p>对创意技术、内容项目、品牌合作、AI 产品与跨界实验保持开放。</p>
-            <div className="contact-actions">
-              <span className="button button-primary is-placeholder" aria-label="邮箱待接入">邮箱 · 待接入</span>
-              <a className="button button-ghost" href="#impact">查看社交矩阵 <span>↗</span></a>
-            </div>
-          </div>
-        </section>
+        <section className="contact section-shell" id="contact"><div className="contact-panel reveal"><span className="section-index">04 / CONTACT</span><h2>保持联系。</h2><p>对创意技术、内容项目、品牌合作、AI 产品与跨界实验保持开放。</p><div className="contact-actions"><span className="button button-primary is-placeholder">邮箱 · 待补充</span><span className="button button-ghost is-placeholder">社交账号 · 待补充</span></div></div></section>
       </main>
-
-      <footer className="site-footer">
-        <div className="brand footer-brand"><span className="brand-mark">A</span><span>ASCENDER<small>ARCHIVE // 01</small></span></div>
-        <p>Built from curiosity, discipline and unfinished ambition.<br /><span>好奇、纪律，以及尚未完成的野心。</span></p>
-        <div><span>© 2026</span><a href="#origin">BACK TO TOP ↑</a></div>
-      </footer>
+      <footer className="site-footer"><div className="brand footer-brand"><span className="brand-mark">A</span><span>ASCENDER<small>PERSONAL ARCHIVE</small></span></div><p>PERSON · SOCIETY · NATURE<br /><span>向内生长，向外创造。</span></p><div><span>© 2026</span><a href="#top">BACK TO TOP ↑</a></div></footer>
     </>
   );
 }

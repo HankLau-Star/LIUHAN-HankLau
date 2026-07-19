@@ -2193,3 +2193,79 @@ button {
   .hero-stagger, .reveal { opacity: 1; transform: none; }
   .ambient-glow { display: none; }
 }
+
+/* 2026 information architecture: person / society / nature */
+.new-hero { min-height: 900px; align-items: center; }
+.new-hero .hero-copy { top: auto; }
+.world-map { position: absolute; right: 5vw; bottom: 11vh; z-index: 5; display: grid; width: min(480px, 38vw); gap: 8px; }
+.world-map a { display: grid; grid-template-columns: 42px 1fr; gap: 4px 16px; padding: 18px 20px; border: 1px solid rgba(255,255,255,.1); border-radius: 7px; background: rgba(10,13,24,.72); backdrop-filter: blur(14px); transition: transform .25s ease, border-color .25s ease; }
+.world-map a:hover { transform: translateX(-8px); border-color: rgba(143,102,255,.45); }
+.world-map small { grid-row: span 2; color: var(--cyan); font-family: var(--font-mono); }
+.world-map strong { font-family: var(--font-display); font-size: 24px; }
+.world-map span { color: #777c90; font-size: 10px; }
+.personal { padding-bottom: 40px; }
+.chapter-block { margin: 0 0 110px; scroll-margin-top: 110px; }
+.chapter-intro { display: grid; grid-template-columns: 80px 1fr 1fr; align-items: end; gap: 24px; margin-bottom: 34px; padding-bottom: 22px; border-bottom: 1px solid var(--line); }
+.chapter-intro > span { color: var(--cyan); font-family: var(--font-mono); font-size: 9px; }
+.chapter-intro h3 { margin: 0; font-family: var(--font-display); font-size: clamp(2.5rem, 5vw, 5rem); letter-spacing: -.05em; }
+.chapter-intro p { max-width: 420px; margin: 0; color: #858a9e; font-size: 12px; line-height: 1.8; }
+.strength-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 10px; }
+.strength-grid > article { min-height: 470px; padding: 34px; }
+.ability-row { display: grid; grid-template-columns: .7fr 1fr; gap: 20px; padding: 24px 0; border-bottom: 1px solid var(--line); }
+.ability-row strong { font-family: var(--font-display); font-size: 22px; }
+.ability-row p { margin: 0; color: #7d8296; font-size: 11px; line-height: 1.7; }
+.honor-cloud { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 35px; }
+.honor-cloud > div { min-height: 100px; padding: 16px; border: 1px solid var(--line); border-radius: 5px; background: rgba(255,255,255,.02); }
+.honor-cloud strong, .honor-cloud span { display: block; }
+.honor-cloud strong { font-family: var(--font-display); font-size: 18px; }
+.honor-cloud span { margin-top: 8px; color: #777c90; font-size: 9px; line-height: 1.5; }
+.input-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.input-grid article, .nature-grid article { min-height: 310px; padding: 30px; border: 1px solid var(--line); border-radius: 7px; background: rgba(255,255,255,.02); }
+.input-grid b, .nature-grid span { color: var(--cyan); font-family: var(--font-mono); font-size: 8px; letter-spacing: .12em; }
+.input-grid h4, .nature-grid h3 { margin: 70px 0 18px; font-family: var(--font-display); font-size: 30px; line-height: 1.1; }
+.input-grid p, .nature-grid p { color: #858a9e; font-size: 11px; line-height: 1.8; }
+.output-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.output-grid article { min-height: 270px; padding: 25px; border: 1px solid var(--line); border-radius: 7px; background: linear-gradient(145deg, rgba(143,102,255,.07), rgba(255,255,255,.015)); }
+.output-grid span { color: var(--cyan); font-family: var(--font-mono); font-size: 9px; }
+.output-grid h4 { margin: 42px 0 14px; font-family: var(--font-display); font-size: 30px; }
+.output-grid p { color: #858a9e; font-size: 10px; line-height: 1.85; }
+.experience-strip { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1px; margin-top: 10px; background: var(--line); border: 1px solid var(--line); }
+.experience-strip article { min-height: 235px; padding: 22px; background: #0c0f1c; }
+.experience-strip small { color: var(--cyan); font-family: var(--font-mono); font-size: 7px; }
+.experience-strip h4 { margin: 52px 0 14px; font-family: var(--font-display); font-size: 24px; }
+.experience-strip p { color: #777c90; font-size: 9px; line-height: 1.7; }
+.big-number { display: block; margin-top: 45px; font-family: var(--font-display); font-size: clamp(4rem, 7vw, 7rem); }
+.social-note { display: grid; grid-template-columns: 1fr 2fr; gap: 40px; margin-top: 70px; padding: 34px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.social-note strong { font-family: var(--font-display); font-size: 30px; }
+.social-note p { margin: 0; color: #858a9e; line-height: 1.8; }
+.nature { width: min(1360px, calc(100% - 32px)); padding-inline: 70px; border-radius: 12px; background: radial-gradient(circle at 20% 30%, rgba(33,126,118,.14), transparent 35rem), rgba(9,15,18,.72); }
+.nature-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 9px; }
+.nature-grid article { min-height: 340px; }
+.nature-grid article:nth-child(2), .nature-grid article:nth-child(3) { background: rgba(55,110,94,.05); }
+
+@media (max-width: 920px) {
+  .world-map { right: 24px; bottom: 50px; width: min(460px, calc(100% - 48px)); }
+  .new-hero { min-height: 1050px; align-items: start; }
+  .chapter-intro { grid-template-columns: 55px 1fr; }
+  .chapter-intro p { grid-column: 2; }
+  .strength-grid, .input-grid { grid-template-columns: 1fr; }
+  .output-grid { grid-template-columns: repeat(2, 1fr); }
+  .experience-strip { grid-template-columns: repeat(2, 1fr); }
+  .nature { padding-inline: 30px; }
+}
+
+@media (max-width: 680px) {
+  .new-hero { min-height: 1080px; }
+  .new-hero .hero-copy { width: 100%; }
+  .world-map { bottom: 38px; }
+  .world-map a { padding: 14px; }
+  .chapter-intro { grid-template-columns: 1fr; gap: 10px; }
+  .chapter-intro p { grid-column: auto; }
+  .strength-grid > article { min-height: auto; padding: 22px; }
+  .ability-row { grid-template-columns: 1fr; gap: 8px; }
+  .honor-cloud { grid-template-columns: 1fr; }
+  .output-grid, .experience-strip, .nature-grid { grid-template-columns: 1fr; }
+  .input-grid article, .output-grid article, .nature-grid article { min-height: 250px; }
+  .social-note { grid-template-columns: 1fr; gap: 15px; }
+  .nature { width: calc(100% - 12px); padding-inline: 15px; }
+}
