@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const isGitHubPages = process.env.GITHUB_PAGES === "true";
-const repositoryName = process.env.GITHUB_REPOSITORY?.split("/")[1] ?? "ascender-portfolio";
+const repositoryName = process.env.GITHUB_REPOSITORY?.split("/")[1] ?? "LIUHAN-HankLau";
 const pagesBasePath = `/${repositoryName}`;
 
 const nextConfig: NextConfig = {
