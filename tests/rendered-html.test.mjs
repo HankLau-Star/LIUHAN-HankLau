@@ -106,12 +106,12 @@ test("the calligraphic Korean headings and contact identity assets are bundled",
   assert.ok(wechat.length > 10_000 && instagram.length > 10_000 && linktree.length > 10_000);
 });
 
-test("the licensed Fever Pitch soundtrack is opt-in and credited", async () => {
+test("the licensed Sport Version 1 soundtrack is opt-in and credited", async () => {
   const page = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
 
-  assert.match(page, /audio_5ab49118ef\.mp3/);
+  assert.match(page, /audio_a4679e250c\.mp3/);
   assert.match(page, /aria-pressed=\{musicPlaying\}/);
-  assert.match(page, /FEVER ON/);
-  assert.match(page, /FEVER OFF/);
-  assert.match(page, /DJFUNKYPHARMACIST \/ PIXABAY/);
+  assert.match(page, /SPORT ON/);
+  assert.match(page, /SPORT OFF/);
+  assert.match(page, /BOMBINSOUND \/ PIXABAY/);
 });

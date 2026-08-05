@@ -12,8 +12,8 @@ const navItems = [
 
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 const hostedApi = "https://ascender-archive-01.valid-gnat-7482.chatgpt.site";
-const soundtrackUrl = "https://cdn.pixabay.com/audio/2025/12/12/audio_5ab49118ef.mp3";
-const soundtrackPage = "https://pixabay.com/music/funk-fever-pitch-laughter-breaks-amp-house-music-fusion-446802/";
+const soundtrackUrl = "https://cdn.pixabay.com/download/audio/2026/07/13/audio_a4679e250c.mp3";
+const soundtrackPage = "https://pixabay.com/music/future-bass-sport-version-1-mortals-566579/";
 
 function publicContentEndpoint(): string {
   if (typeof window !== "undefined" && window.location.hostname.endsWith("github.io")) {
@@ -144,8 +144,8 @@ export default function Home() {
           ))}
         </nav>
         <div className="header-actions">
-          <button className={musicPlaying ? "music-toggle is-playing" : "music-toggle"} type="button" aria-label={musicPlaying ? "暂停背景音乐" : "播放背景音乐"} aria-pressed={musicPlaying} onClick={toggleSoundtrack} title="Fever Pitch — DjFunkyPharmacist / Pixabay">
-            <span aria-hidden="true"><i /><i /><i /><i /></span><b>{musicPlaying ? "FEVER ON" : "FEVER OFF"}</b>
+          <button className={musicPlaying ? "music-toggle is-playing" : "music-toggle"} type="button" aria-label={musicPlaying ? "暂停背景音乐" : "播放背景音乐"} aria-pressed={musicPlaying} onClick={toggleSoundtrack} title="Sport Version 1 — BombinSound / Pixabay">
+            <span aria-hidden="true"><i /><i /><i /><i /></span><b>{musicPlaying ? "SPORT ON" : "SPORT OFF"}</b>
           </button>
           <span className="status-pill"><i /> {content.brand.status}</span>
           <button className="menu-button" type="button" aria-label="切换导航菜单" aria-expanded={menuOpen} onClick={() => setMenuOpen(!menuOpen)}><span /><span /></button>
@@ -325,7 +325,7 @@ export default function Home() {
       <footer className="site-footer">
         <div className="brand footer-brand"><span className="brand-mark">HL</span><span>{content.brand.name}<small>{content.brand.subtitle}</small></span></div>
         <p>PERSON · SOCIETY · NATURE<br /><span>向内生长，向外创造。</span></p>
-        <div><span>© 2026</span><a href={soundtrackPage} target="_blank" rel="noreferrer" className="music-credit">MUSIC · DJFUNKYPHARMACIST / PIXABAY</a><a href="/admin" className="admin-entry">CONTENT CONSOLE</a><a href="#top">BACK TO TOP ↑</a></div>
+        <div><span>© 2026</span><a href={soundtrackPage} target="_blank" rel="noreferrer" className="music-credit">MUSIC · BOMBINSOUND / PIXABAY</a><a href="/admin" className="admin-entry">CONTENT CONSOLE</a><a href="#top">BACK TO TOP ↑</a></div>
       </footer>
     </>
   );
