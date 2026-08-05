@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 
 const navItems = [
   { id: "personal", label: "个人" },
@@ -59,6 +59,25 @@ export default function Home() {
   const [activeSection, setActiveSection] = useState("personal");
 
   useEffect(() => {
+    const root = document.documentElement;
+    let frame = 0;
+    const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+    const updatePointer = (event: PointerEvent) => {
+      if (!finePointer) return;
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        root.style.setProperty("--pointer-x", `${event.clientX}px`);
+        root.style.setProperty("--pointer-y", `${event.clientY}px`);
+        root.style.setProperty("--hero-shift-x", `${(event.clientX / window.innerWidth - .5) * 18}px`);
+        root.style.setProperty("--hero-shift-y", `${(event.clientY / window.innerHeight - .5) * 12}px`);
+      });
+    };
+    const updateScroll = () => {
+      const range = document.documentElement.scrollHeight - window.innerHeight;
+      root.style.setProperty("--scroll-progress", `${range > 0 ? Math.min(window.scrollY / range * 100, 100) : 0}%`);
+      root.style.setProperty("--hero-scroll", `${Math.min(window.scrollY, 700)}px`);
+      root.style.setProperty("--hero-parallax", `${Math.min(window.scrollY, 700) * .08}px`);
+    };
     const revealObserver = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) entry.target.classList.add("is-visible");
@@ -70,12 +89,23 @@ export default function Home() {
     }, { rootMargin: "-30% 0px -55%", threshold: [0, .2, .6] });
     document.querySelectorAll(".reveal").forEach((item) => revealObserver.observe(item));
     document.querySelectorAll("main section[id]").forEach((item) => sectionObserver.observe(item));
-    return () => { revealObserver.disconnect(); sectionObserver.disconnect(); };
+    window.addEventListener("pointermove", updatePointer, { passive: true });
+    window.addEventListener("scroll", updateScroll, { passive: true });
+    updateScroll();
+    return () => {
+      cancelAnimationFrame(frame);
+      revealObserver.disconnect();
+      sectionObserver.disconnect();
+      window.removeEventListener("pointermove", updatePointer);
+      window.removeEventListener("scroll", updateScroll);
+    };
   }, []);
 
   return (
     <>
       <a className="skip-link" href="#main-content">跳至主要内容</a>
+      <div className="reading-progress" aria-hidden="true" />
+      <div className="ambient-glow" aria-hidden="true" />
       <header className="site-header">
         <a className="brand" href="#top" aria-label="返回首页"><span className="brand-mark">A</span><span>ASCENDER<small>PERSONAL ARCHIVE</small></span></a>
         <nav className={menuOpen ? "main-nav is-open" : "main-nav"} aria-label="主导航">
@@ -87,12 +117,23 @@ export default function Home() {
       <main id="main-content">
         <section className="hero new-hero" id="top">
           <div className="hero-grid" aria-hidden="true" />
+          <div className="hero-visual" aria-hidden="true">
+            <img src="/solo-awakening.png" alt="" />
+            <div className="visual-veil" />
+            <div className="energy-rift"><i /><i /><i /></div>
+            <div className="energy-motes">
+              {Array.from({ length: 24 }).map((_, index) => <i key={index} style={{ "--i": index } as CSSProperties} />)}
+            </div>
+          </div>
+          <div className="hero-scanline" aria-hidden="true" />
           <div className="hero-copy">
+            <div className="system-chip hero-stagger"><i /> SYSTEM // AWAKENING</div>
             <div className="eyebrow hero-stagger">PERSON · SOCIETY · NATURE</div>
-            <h1 className="hero-stagger">向内生长，<br />向外<span>创造。</span></h1>
+            <h1 className="hero-stagger">独自升级，<br />向外<span>创造。</span></h1>
             <p className="hero-intro hero-stagger">一个跨界数字创作者的个人档案：从能力、输入与输出出发，持续理解社会，也重新连接自然世界。</p>
             <div className="hero-actions hero-stagger"><a className="button button-primary" href="#personal">打开个人档案 <b>↘</b></a><a className="button button-ghost" href="#society">进入社会世界 →</a></div>
           </div>
+          <div className="awakening-mark hero-stagger" aria-hidden="true"><span>LEVEL</span><strong>∞</strong><i>EVOLVE / CREATE / ASCEND</i></div>
           <div className="world-map hero-stagger" aria-label="三部分内容结构"><a href="#personal"><small>01</small><strong>个人</strong><span>实力与背书 · 输入 · 输出</span></a><a href="#society"><small>02</small><strong>社会世界</strong><span>连接 · 协作 · 公共影响</span></a><a href="#nature"><small>03</small><strong>自然世界</strong><span>身体 · 感知 · 长期主义</span></a></div>
         </section>
 
