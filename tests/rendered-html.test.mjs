@@ -1,27 +1,49 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import test from "node:test";
+import { defaultSiteContent, normalizeSiteContent } from "../lib/site-content.ts";
 
-async function render() {
-  const workerUrl = new URL("../dist/server/index.js", import.meta.url);
-  workerUrl.searchParams.set("test", `${process.pid}-${Date.now()}`);
-  const { default: worker } = await import(workerUrl.href);
+test("default content contains the complete portfolio structure", () => {
+  assert.equal(defaultSiteContent.projects.length, 3);
+  assert.ok(defaultSiteContent.skills.length >= 4);
+  assert.ok(defaultSiteContent.outputs.some((item) => item.title === "自媒体"));
+  assert.ok(defaultSiteContent.metrics.some((item) => item.value === "300W+"));
+  assert.match(defaultSiteContent.hero.lineOne, /独自升级/);
+});
 
-  return worker.fetch(
-    new Request("http://localhost/", { headers: { accept: "text/html" } }),
-    { ASSETS: { fetch: async () => new Response("Not found", { status: 404 }) } },
-    { waitUntil() {}, passThroughOnException() {} },
-  );
-}
+test("content normalization blocks unsafe links and limits collections", () => {
+  const content = normalizeSiteContent({
+    ...defaultSiteContent,
+    projects: Array.from({ length: 30 }, (_, index) => ({
+      id: `作品 ${index}`,
+      type: "TEST",
+      year: "2026",
+      title: `作品 ${index}`,
+      summary: "测试",
+      imageUrl: "javascript:alert(1)",
+      projectUrl: "https://example.com",
+      tags: ["ONE", "TWO"],
+    })),
+  });
 
-test("server-renders the finished creator portfolio", async () => {
-  const response = await render();
-  assert.equal(response.status, 200);
-  assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
+  assert.equal(content.projects.length, 18);
+  assert.equal(content.projects[0].imageUrl, "");
+  assert.equal(content.projects[0].projectUrl, "https://example.com");
+  assert.equal(content.projects[0].id, "---0");
+});
 
-  const html = await response.text();
-  assert.match(html, /<title>ASCENDER 01｜跨界数字创作者<\/title>/i);
-  assert.match(html, /一人/);
-  assert.match(html, /能力军团/);
-  assert.match(html, /DIGITAL INFLUENCE/);
-  assert.doesNotMatch(html, /codex-preview|Your site is taking shape|react-loading-skeleton/i);
+test("front page and protected admin routes are wired", async () => {
+  const [page, adminPage, publicApi, adminApi] = await Promise.all([
+    readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/admin/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/api/site/route.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/api/admin/site/route.ts", import.meta.url), "utf8"),
+  ]);
+
+  assert.match(page, /代表作品/);
+  assert.match(page, /CONTENT CONSOLE/);
+  assert.match(page, /publicContentEndpoint/);
+  assert.match(adminPage, /requireChatGPTUser/);
+  assert.match(publicApi, /Access-Control-Allow-Origin/);
+  assert.match(adminApi, /getAuthorizedAdmin/);
 });

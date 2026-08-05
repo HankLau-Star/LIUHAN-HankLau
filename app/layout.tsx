@@ -10,13 +10,13 @@ export const metadata: Metadata = {
   openGraph: {
     title: "ASCENDER｜独自升级，向外创造",
     description,
-    images: [{ url: `${siteUrl}/og.png`, width: 1729, height: 910, alt: "ASCENDER 觉醒主题个人网站" }],
+    images: [{ url: `${siteUrl}/og-v2.png`, width: 1728, height: 910, alt: "ASCENDER 觉醒主题个人网站" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "ASCENDER｜独自升级，向外创造",
     description,
-    images: [`${siteUrl}/og.png`],
+    images: [`${siteUrl}/og-v2.png`],
   },
 };
 
