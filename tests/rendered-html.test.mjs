@@ -62,15 +62,14 @@ test("front page and protected admin routes are wired", async () => {
   assert.match(adminApi, /getAuthorizedAdmin/);
 });
 
-test("the original soundtrack is bundled with an accessible player", async () => {
-  const [page, audio] = await Promise.all([
+test("the Instagram video is bundled as a muted scrolling backdrop", async () => {
+  const [page, video] = await Promise.all([
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../public/ascender-night-drive.wav", import.meta.url)),
+    readFile(new URL("../public/ins-viral-video.mp4", import.meta.url)),
   ]);
 
-  assert.match(page, /ascender-night-drive\.wav/);
-  assert.match(page, /aria-pressed=\{musicOn\}/);
-  assert.equal(audio.subarray(0, 4).toString("ascii"), "RIFF");
-  assert.equal(audio.subarray(8, 12).toString("ascii"), "WAVE");
-  assert.ok(audio.length > 1_000_000);
+  assert.match(page, /ins-viral-video\.mp4/);
+  assert.match(page, /<video autoPlay muted loop playsInline/);
+  assert.equal(video.subarray(4, 8).toString("ascii"), "ftyp");
+  assert.ok(video.length > 1_000_000);
 });

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 import { defaultSiteContent, normalizeSiteContent, type SiteContent } from "../lib/site-content";
 
 const navItems = [
@@ -24,28 +24,6 @@ export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("personal");
   const [content, setContent] = useState<SiteContent>(defaultSiteContent);
-  const [musicOn, setMusicOn] = useState(false);
-  const [musicError, setMusicError] = useState(false);
-  const audioRef = useRef<HTMLAudioElement>(null);
-
-  const toggleMusic = async () => {
-    const audio = audioRef.current;
-    if (!audio) return;
-    audio.volume = 0.5;
-    setMusicError(false);
-
-    if (audio.paused) {
-      try {
-        await audio.play();
-      } catch {
-        setMusicError(true);
-        setMusicOn(false);
-      }
-      return;
-    }
-
-    audio.pause();
-  };
 
   useEffect(() => {
     const controller = new AbortController();
@@ -88,9 +66,19 @@ export default function Home() {
         .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
       if (current?.target.id) setActiveSection(current.target.id);
     }, { rootMargin: "-30% 0px -55%", threshold: [0, 0.2, 0.6] });
+    const societySection = document.getElementById("society");
+    const societyVideo = societySection?.querySelector<HTMLVideoElement>("video");
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const societyVideoObserver = new IntersectionObserver(([entry]) => {
+      const isActive = Boolean(entry?.isIntersecting) && !reduceMotion;
+      societySection?.classList.toggle("is-video-active", isActive);
+      if (isActive) societyVideo?.play().catch(() => undefined);
+      else societyVideo?.pause();
+    }, { rootMargin: "-8% 0px -8%", threshold: 0.02 });
 
     document.querySelectorAll(".reveal").forEach((item) => revealObserver.observe(item));
     document.querySelectorAll("main section[id]").forEach((item) => sectionObserver.observe(item));
+    if (societySection) societyVideoObserver.observe(societySection);
     window.addEventListener("pointermove", updatePointer, { passive: true });
     window.addEventListener("scroll", updateScroll, { passive: true });
     updateScroll();
@@ -99,6 +87,9 @@ export default function Home() {
       cancelAnimationFrame(frame);
       revealObserver.disconnect();
       sectionObserver.disconnect();
+      societyVideoObserver.disconnect();
+      societySection?.classList.remove("is-video-active");
+      societyVideo?.pause();
       window.removeEventListener("pointermove", updatePointer);
       window.removeEventListener("scroll", updateScroll);
     };
@@ -122,26 +113,6 @@ export default function Home() {
           ))}
         </nav>
         <div className="header-actions">
-          <audio
-            ref={audioRef}
-            src={`${basePath}/ascender-night-drive.wav`}
-            loop
-            preload="metadata"
-            onPlay={() => setMusicOn(true)}
-            onPause={() => setMusicOn(false)}
-            onError={() => setMusicError(true)}
-          />
-          <button
-            className={musicOn ? "sound-toggle is-playing" : "sound-toggle"}
-            type="button"
-            aria-label={musicOn ? "关闭原创背景音乐" : "播放原创背景音乐"}
-            aria-pressed={musicOn}
-            title="原创配乐：ASCENDER // NIGHT DRIVE"
-            onClick={toggleMusic}
-          >
-            <span className="sound-bars" aria-hidden="true"><i /><i /><i /><i /></span>
-            <span className="sound-copy"><strong>{musicError ? "AUDIO ERROR" : musicOn ? "PHONK ON" : "PHONK"}</strong><small>ORIGINAL MIX</small></span>
-          </button>
           <span className="status-pill"><i /> {content.brand.status}</span>
           <button className="menu-button" type="button" aria-label="切换导航菜单" aria-expanded={menuOpen} onClick={() => setMenuOpen(!menuOpen)}><span /><span /></button>
         </div>
@@ -226,6 +197,12 @@ export default function Home() {
         </section>
 
         <section className="impact section-shell society" id="society">
+          <div className="society-video-layer" aria-hidden="true">
+            <video autoPlay muted loop playsInline preload="metadata">
+              <source src={`${basePath}/ins-viral-video.mp4`} type="video/mp4" />
+            </video>
+            <span className="society-video-label"><i /> ORIGINAL REACH / INSTAGRAM</span>
+          </div>
           <div className="signal-field" aria-hidden="true"><i /><i /><i /><i /></div>
           <div className="section-heading reveal">
             <div><span className="section-index">02 / SOCIAL WORLD</span><h2>社会世界</h2></div>
