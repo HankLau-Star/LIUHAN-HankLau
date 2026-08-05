@@ -14,6 +14,11 @@ test("default content contains the complete portfolio structure", () => {
   assert.ok(defaultSiteContent.works.slice(3).every((item) => item.url.startsWith("https://mp.weixin.qq.com/s/")));
   assert.equal(defaultSiteContent.brand.name, "LIUHAN");
   assert.match(defaultSiteContent.brand.subtitle, /HankLau · HL/);
+  assert.equal(defaultSiteContent.metrics.find((item) => item.label === "PUBLIC REACH")?.value, "38K+");
+  assert.equal(defaultSiteContent.platforms.find((item) => item.name === "视频号")?.value, "20,000");
+  assert.equal(defaultSiteContent.platforms.find((item) => item.name.startsWith("抖音"))?.value, "7,000");
+  assert.equal(defaultSiteContent.platforms.find((item) => item.name === "知乎")?.value, "1,700");
+  assert.equal(defaultSiteContent.platforms.find((item) => item.name === "小红书")?.value, "1,200");
   assert.equal(defaultSiteContent.contact.emailUrl, "mailto:veritasrensheng@gmail.com");
   assert.equal(defaultSiteContent.contact.socialUrl, "https://linktr.ee/HankLau");
 });
@@ -76,4 +81,26 @@ test("the Instagram video is bundled as a muted scrolling backdrop", async () =>
   assert.match(page, /刘涵 · 류한/);
   assert.equal(video.subarray(4, 8).toString("ascii"), "ftyp");
   assert.ok(video.length > 1_000_000);
+});
+
+test("the calligraphic Korean headings and contact identity assets are bundled", async () => {
+  const [page, avatar, wechat, instagram, linktree] = await Promise.all([
+    readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../public/liuhan-avatar.jpg", import.meta.url)),
+    readFile(new URL("../public/qr-wechat.png", import.meta.url)),
+    readFile(new URL("../public/qr-instagram.png", import.meta.url)),
+    readFile(new URL("../public/qr-linktree.png", import.meta.url)),
+  ]);
+
+  assert.match(page, /section-korean/);
+  assert.match(page, /개인/);
+  assert.match(page, /사회 세계/);
+  assert.match(page, /자연 세계/);
+  assert.match(page, /연락하기/);
+  assert.match(page, /liuhan-avatar\.jpg/);
+  assert.match(page, /qr-wechat\.png/);
+  assert.match(page, /qr-instagram\.png/);
+  assert.match(page, /qr-linktree\.png/);
+  assert.ok(avatar.length > 10_000);
+  assert.ok(wechat.length > 10_000 && instagram.length > 10_000 && linktree.length > 10_000);
 });

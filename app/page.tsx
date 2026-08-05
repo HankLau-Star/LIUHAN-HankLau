@@ -175,7 +175,7 @@ export default function Home() {
         <section className="section-shell personal" id="personal">
           <div className="section-code" aria-hidden="true">PERSON / 01</div>
           <div className="section-heading reveal">
-            <div><span className="section-index">01 / PERSONAL</span><h2>个人</h2></div>
+            <div><span className="section-index">01 / PERSONAL</span><h2>个人 <em className="section-korean">개인</em></h2></div>
             <p>{content.personalSummary}</p>
           </div>
 
@@ -222,7 +222,7 @@ export default function Home() {
         <section className="impact section-shell society" id="society">
           <div className="signal-field" aria-hidden="true"><i /><i /><i /><i /></div>
           <div className="section-heading reveal">
-            <div><span className="section-index">02 / SOCIAL WORLD</span><h2>社会世界</h2></div>
+            <div><span className="section-index">02 / SOCIAL WORLD</span><h2>社会世界 <em className="section-korean">사회 세계</em></h2></div>
             <p>{content.societySummary}</p>
           </div>
           <div className="impact-dashboard reveal">
@@ -250,7 +250,7 @@ export default function Home() {
           <div className="nature-horizon" aria-hidden="true"><i /><i /><i /></div>
           <div className="nature-orbit" aria-hidden="true"><span>LONG TERM</span><i /><i /><i /></div>
           <div className="section-heading reveal">
-            <div><span className="section-index">03 / NATURAL WORLD</span><h2>自然世界</h2></div>
+            <div><span className="section-index">03 / NATURAL WORLD</span><h2>自然世界 <em className="section-korean">자연 세계</em></h2></div>
             <p>{content.natureSummary}</p>
           </div>
           <div className="nature-grid">{content.natureItems.map((item, index) => (
@@ -264,10 +264,35 @@ export default function Home() {
         <section className="contact section-shell" id="contact">
           <div className="contact-panel reveal">
             <div className="contact-orbit" aria-hidden="true"><i /><i /><span>OPEN CHANNEL</span></div>
-            <span className="section-index">04 / CONTACT</span><h2>{content.contact.heading}</h2><p>{content.contact.body}</p>
-            <div className="contact-actions">
-              {content.contact.emailUrl ? <a className="button button-primary" href={content.contact.emailUrl}>{content.contact.emailLabel}</a> : <span className="button button-primary is-placeholder">{content.contact.emailLabel}</span>}
-              {content.contact.socialUrl ? <a className="button button-ghost" href={content.contact.socialUrl} target="_blank" rel="noreferrer">{content.contact.socialLabel}</a> : <span className="button button-ghost is-placeholder">{content.contact.socialLabel}</span>}
+            <div className="contact-profile-grid">
+              <figure className="contact-portrait">
+                <img src={`${basePath}/liuhan-avatar.jpg`} alt="刘涵 HankLau 个人头像" />
+                <span aria-hidden="true" />
+                <figcaption><small>ASCENDER / 04</small><strong>LIUHAN</strong><b>HankLau · HL</b></figcaption>
+              </figure>
+              <div className="contact-content">
+                <span className="section-index">04 / CONTACT</span>
+                <h2>{content.contact.heading} <em className="section-korean">연락하기</em></h2>
+                <p>{content.contact.body}</p>
+                <div className="contact-actions">
+                  {content.contact.emailUrl ? <a className="button button-primary" href={content.contact.emailUrl}>{content.contact.emailLabel}</a> : <span className="button button-primary is-placeholder">{content.contact.emailLabel}</span>}
+                  {content.contact.socialUrl ? <a className="button button-ghost" href={content.contact.socialUrl} target="_blank" rel="noreferrer">{content.contact.socialLabel}</a> : <span className="button button-ghost is-placeholder">{content.contact.socialLabel}</span>}
+                </div>
+                <div className="contact-qr-grid" aria-label="社交媒体二维码">
+                  <article className="contact-qr-card">
+                    <div><img src={`${basePath}/qr-wechat.png`} alt="刘涵的个人微信二维码" /></div>
+                    <span><b>微信</b><small>WECHAT / PRIVATE</small></span>
+                  </article>
+                  <article className="contact-qr-card">
+                    <div><img src={`${basePath}/qr-instagram.png`} alt="HankLau 的 Instagram 二维码" /></div>
+                    <span><b>Instagram</b><small>@HANKLAU.AI</small></span>
+                  </article>
+                  <article className="contact-qr-card">
+                    <div><img src={`${basePath}/qr-linktree.png`} alt="HankLau 的 Linktree 二维码" /></div>
+                    <span><b>Linktree</b><small>ALL CHANNELS</small></span>
+                  </article>
+                </div>
+              </div>
             </div>
           </div>
         </section>
