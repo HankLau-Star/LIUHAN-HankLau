@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { defaultSiteContent, normalizeSiteContent, type SiteContent } from "../../lib/site-content";
 
-type CollectionKey = "skills" | "honors" | "inputs" | "outputs" | "experiences" | "metrics" | "platforms" | "natureItems";
+type CollectionKey = "skills" | "honors" | "inputs" | "outputs" | "experiences" | "works" | "metrics" | "platforms" | "natureItems";
 type FieldConfig = { key: string; label: string; kind?: "text" | "textarea" | "url" };
 type CollectionConfig = { key: CollectionKey; title: string; description: string; fields: FieldConfig[]; blank: Record<string, string | string[]> };
 
@@ -13,6 +13,7 @@ const collections: CollectionConfig[] = [
   { key: "inputs", title: "输入", description: "学习、观察与生活输入。", fields: [{ key: "label", label: "分类" }, { key: "title", label: "标题" }, { key: "body", label: "正文", kind: "textarea" }], blank: { label: "新输入", title: "输入标题", body: "补充说明" } },
   { key: "outputs", title: "输出", description: "实践、社群、自媒体、书籍、创业与公共影响。", fields: [{ key: "label", label: "编号" }, { key: "title", label: "标题" }, { key: "body", label: "正文", kind: "textarea" }], blank: { label: "00", title: "新输出", body: "补充说明" } },
   { key: "experiences", title: "实践经历", description: "公司、角色与经历说明。", fields: [{ key: "company", label: "机构" }, { key: "role", label: "角色" }, { key: "body", label: "经历", kind: "textarea" }], blank: { company: "新机构", role: "角色", body: "经历说明" } },
+  { key: "works", title: "代表作品", description: "管理前端作品卡片、阅读成绩和原文链接。留空链接时会显示为作品档案。", fields: [{ key: "platform", label: "平台与类型" }, { key: "metric", label: "代表成绩" }, { key: "title", label: "作品标题" }, { key: "summary", label: "作品简介", kind: "textarea" }, { key: "url", label: "原文链接", kind: "url" }], blank: { platform: "ORIGINAL WORK", metric: "代表成绩", title: "新作品", summary: "补充作品简介", url: "" } },
   { key: "metrics", title: "社会影响力数值", description: "首页数据看板中的核心数值。", fields: [{ key: "label", label: "英文标签" }, { key: "value", label: "数值" }, { key: "detail", label: "说明" }], blank: { label: "NEW METRIC", value: "0", detail: "数据说明" } },
   { key: "platforms", title: "平台矩阵", description: "各内容平台的数据与代表成绩。", fields: [{ key: "name", label: "平台" }, { key: "value", label: "粉丝数" }, { key: "detail", label: "代表成绩" }], blank: { name: "新平台", value: "0", detail: "补充成绩" } },
   { key: "natureItems", title: "自然世界", description: "身体、运动、感知与生活节律。", fields: [{ key: "label", label: "英文标签" }, { key: "title", label: "标题" }, { key: "body", label: "正文", kind: "textarea" }], blank: { label: "LIFE", title: "新条目", body: "补充说明" } },
@@ -140,6 +141,7 @@ export default function AdminDashboard({ displayName, email, signOutPath }: { di
             </EditorSection>
             <EditorSection title="章节简介">
               <TextField label="个人" value={content.personalSummary} multiline onChange={(value) => setContent((previous) => ({ ...previous, personalSummary: value }))} />
+              <TextField label="代表作品" value={content.worksIntro} multiline onChange={(value) => setContent((previous) => ({ ...previous, worksIntro: value }))} />
               <TextField label="社会世界" value={content.societySummary} multiline onChange={(value) => setContent((previous) => ({ ...previous, societySummary: value }))} />
               <TextField label="自然世界" value={content.natureSummary} multiline onChange={(value) => setContent((previous) => ({ ...previous, natureSummary: value }))} />
             </EditorSection>

@@ -7,7 +7,10 @@ test("default content contains the complete portfolio structure", () => {
   assert.ok(defaultSiteContent.skills.length >= 4);
   assert.ok(defaultSiteContent.outputs.some((item) => item.title === "自媒体"));
   assert.ok(defaultSiteContent.metrics.some((item) => item.value === "300W+"));
-  assert.match(defaultSiteContent.hero.lineOne, /独自升级/);
+  assert.equal(defaultSiteContent.hero.lineOne, "ASCENDER");
+  assert.equal(defaultSiteContent.hero.lineTwo, "向内生长，");
+  assert.equal(defaultSiteContent.works.length, 4);
+  assert.ok(defaultSiteContent.works.slice(0, 3).every((item) => item.url.startsWith("https://www.zhihu.com/pin/")));
   assert.equal(defaultSiteContent.brand.name, "LIUHAN");
   assert.match(defaultSiteContent.brand.subtitle, /HankLau · HL/);
   assert.equal(defaultSiteContent.contact.emailUrl, "mailto:veritasrensheng@gmail.com");
@@ -18,6 +21,13 @@ test("content normalization blocks unsafe links and limits collections", () => {
   const content = normalizeSiteContent({
     ...defaultSiteContent,
     outputs: Array.from({ length: 30 }, (_, index) => ({ label: `${index}`, title: `输出 ${index}`, body: "测试" })),
+    works: Array.from({ length: 20 }, (_, index) => ({
+      platform: "TEST",
+      metric: "100W+",
+      title: `作品 ${index}`,
+      summary: "测试",
+      url: index === 0 ? "javascript:alert(1)" : "https://example.com/work",
+    })),
     contact: {
       ...defaultSiteContent.contact,
       emailUrl: "mailto:hello@example.com",
@@ -26,6 +36,9 @@ test("content normalization blocks unsafe links and limits collections", () => {
   });
 
   assert.equal(content.outputs.length, 18);
+  assert.equal(content.works.length, 12);
+  assert.equal(content.works[0].url, "");
+  assert.equal(content.works[1].url, "https://example.com/work");
   assert.equal(content.contact.emailUrl, "mailto:hello@example.com");
   assert.equal(content.contact.socialUrl, "");
 });
@@ -39,8 +52,8 @@ test("front page and protected admin routes are wired", async () => {
   ]);
 
   assert.match(page, /查看代表作品/);
-  assert.match(page, /href="#output"/);
-  assert.doesNotMatch(page, /id="works"/);
+  assert.match(page, /href="#works"/);
+  assert.match(page, /id="works"/);
   assert.match(page, /CONTENT CONSOLE/);
   assert.match(page, /publicContentEndpoint/);
   assert.match(adminPage, /requireChatGPTUser/);

@@ -27,6 +27,14 @@ export type PlatformItem = {
   detail: string;
 };
 
+export type WorkItem = {
+  platform: string;
+  metric: string;
+  title: string;
+  summary: string;
+  url: string;
+};
+
 export type SiteContent = {
   brand: {
     name: string;
@@ -47,6 +55,8 @@ export type SiteContent = {
   inputs: StoryItem[];
   outputs: StoryItem[];
   experiences: ExperienceItem[];
+  worksIntro: string;
+  works: WorkItem[];
   societySummary: string;
   metrics: MetricItem[];
   platforms: PlatformItem[];
@@ -75,10 +85,10 @@ export const defaultSiteContent: SiteContent = {
   hero: {
     system: "SYSTEM // AWAKENING",
     eyebrow: "LIUHAN · HankLau · HL",
-    lineOne: "独自升级，",
-    lineTwo: "向外",
-    accent: "创造。",
-    intro: "一个跨界数字创作者的个人档案：从能力、输入与输出出发，持续理解社会，也重新连接自然世界。",
+    lineOne: "ASCENDER",
+    lineTwo: "向内生长，",
+    accent: "向外创造。",
+    intro: "一个跨界数字创作者的个人档案，在个人、社会与自然三个世界里持续升级。",
   },
   personalSummary: "个人不是标签的集合，而是一套由实力、输入与输出构成，并持续循环升级的系统。",
   skills: [
@@ -115,6 +125,37 @@ export const defaultSiteContent: SiteContent = {
     { company: "知乎", role: "内容运营", body: "深入图文生态，训练选题、表达与社区语境判断。" },
     { company: "公考机构", role: "全媒体运营", body: "参与多平台内容生产与分发，积累全媒体协同经验。" },
     { company: "36氪", role: "AI 产品内容测评", body: "围绕 AI 产品展开体验、测评与表达，让复杂技术被更多人理解。" },
+  ],
+  worksIntro: "把真实影响力沉淀为可阅读、可验证的原创作品。以下内容均由本人独立创作。",
+  works: [
+    {
+      platform: "ZHIHU · ORIGINAL",
+      metric: "100W+ 阅读",
+      title: "坚持这几个事情，2个月后人生重启开挂",
+      summary: "20 个亲测有效的生活重启行动，把自律拆成今晚就能开始的小事。",
+      url: "https://www.zhihu.com/pin/2061387114298848969?native=1&scene=share&share_code=FiV6BGTvk0WW&utm_psn=2068366396443170552",
+    },
+    {
+      platform: "ZHIHU · AI OBSERVATION",
+      metric: "100W+ 阅读",
+      title: "DeepSeek 团队主要成员毕业大学",
+      summary: "梳理核心团队的教育背景与人才结构，观察中国 AI 突破背后的青年力量。",
+      url: "https://www.zhihu.com/pin/1890776233031235495?native=1&scene=share&share_code=pvao0IqC6Ax&utm_psn=2068366482757662346",
+    },
+    {
+      platform: "ZHIHU · INSIGHT",
+      metric: "100W+ 阅读",
+      title: "什么样的人活得最幸福？",
+      summary: "从外界标准、真实感受与心理能量出发，讨论如何减少内耗、活出真我。",
+      url: "https://www.zhihu.com/pin/2063325186527704695?native=1&scene=share&share_code=JoZyCNVxsD5W&utm_psn=2068366594774917974",
+    },
+    {
+      platform: "WECHAT · ORIGINAL",
+      metric: "10W+ 高赞原创",
+      title: "公众号原创内容矩阵",
+      summary: "长期原创写作与内容实践，覆盖个人成长、AI 观察与社会洞察；代表文章链接持续整理中。",
+      url: "",
+    },
   ],
   societySummary: "通过内容、社群与协作进入更大的关系网络，让个人输出在真实世界中产生回声。",
   metrics: [
@@ -194,9 +235,10 @@ function cleanList<T extends Record<string, string>>(
   value: unknown,
   fallback: T[],
   limit: number,
+  urlKeys: Array<keyof T> = [],
 ): T[] {
   if (!Array.isArray(value)) return fallback;
-  return value.slice(0, limit).map((item, index) => cleanObject(item, fallback[index] ?? fallback[0]));
+  return value.slice(0, limit).map((item, index) => cleanObject(item, fallback[index] ?? fallback[0], urlKeys));
 }
 
 export function normalizeSiteContent(value: unknown): SiteContent {
@@ -211,6 +253,8 @@ export function normalizeSiteContent(value: unknown): SiteContent {
     inputs: cleanList(source.inputs, defaultSiteContent.inputs, 12),
     outputs: cleanList(source.outputs, defaultSiteContent.outputs, 18),
     experiences: cleanList(source.experiences, defaultSiteContent.experiences, 18),
+    worksIntro: cleanText(source.worksIntro, defaultSiteContent.worksIntro),
+    works: cleanList(source.works, defaultSiteContent.works, 12, ["url"]),
     societySummary: cleanText(source.societySummary, defaultSiteContent.societySummary),
     metrics: cleanList(source.metrics, defaultSiteContent.metrics, 8),
     platforms: cleanList(source.platforms, defaultSiteContent.platforms, 18),

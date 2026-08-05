@@ -77,5 +77,5 @@ const server = createServer(async (request, response) => {
 });
 
 server.listen(port, host, () => {
-  console.log(`LIUHAN preview: http://${host}:${port}`);
+  console.log(`ASCENDER preview: http://${host}:${port}`);
 });

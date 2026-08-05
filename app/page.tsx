@@ -5,6 +5,7 @@ import { defaultSiteContent, normalizeSiteContent, type SiteContent } from "../l
 
 const navItems = [
   { id: "personal", label: "个人" },
+  { id: "works", label: "代表作品" },
   { id: "society", label: "社会世界" },
   { id: "nature", label: "自然世界" },
   { id: "contact", label: "联系方式" },
@@ -120,11 +121,12 @@ export default function Home() {
           <div className="hero-copy">
             <div className="system-chip hero-stagger"><i /> {content.hero.system}</div>
             <div className="eyebrow hero-stagger">{content.hero.eyebrow}</div>
-            <h1 className="hero-stagger">{content.hero.lineOne}<br />{content.hero.lineTwo}<span>{content.hero.accent}</span></h1>
+            <h1 className="hero-stagger">{content.hero.lineOne}</h1>
+            <p className="hero-motto hero-stagger">{content.hero.lineTwo}<span>{content.hero.accent}</span></p>
             <p className="hero-intro hero-stagger">{content.hero.intro}</p>
             <div className="hero-actions hero-stagger">
               <a className="button button-primary" href="#personal">打开个人档案 <b>↘</b></a>
-              <a className="button button-ghost" href="#output">查看代表作品 →</a>
+              <a className="button button-ghost" href="#works">查看代表作品 →</a>
             </div>
           </div>
           <div className="awakening-mark hero-stagger" aria-hidden="true"><span>LEVEL</span><strong>∞</strong><i>EVOLVE / CREATE / ASCEND</i></div>
@@ -159,6 +161,32 @@ export default function Home() {
             <div className="chapter-intro"><span>01—C</span><h3>输出</h3><p>所有积累最终都要变成作品、实践、连接，以及可被社会感知的价值。</p></div>
             <div className="output-grid">{content.outputs.map((item, index) => <article key={`${item.title}-${index}`}><span>{item.label || String(index + 1).padStart(2, "0")}</span><h4>{item.title}</h4><p>{item.body}</p></article>)}</div>
             <div className="experience-strip">{content.experiences.map((item) => <article key={`${item.company}-${item.role}`}><small>{item.role}</small><h4>{item.company}</h4><p>{item.body}</p></article>)}</div>
+          </div>
+        </section>
+
+        <section className="selected-works section-shell" id="works">
+          <div className="works-watermark" aria-hidden="true">ORIGINAL</div>
+          <div className="section-heading reveal">
+            <div><span className="section-index">SELECTED / ORIGINAL WORKS</span><h2>代表作品</h2></div>
+            <p>{content.worksIntro}</p>
+          </div>
+          <div className="works-grid">
+            {content.works.map((work, index) => {
+              const cardContent = (
+                <>
+                  <div className="work-card-top"><span>{work.platform}</span><strong>{work.metric}</strong></div>
+                  <span className="work-number">{String(index + 1).padStart(2, "0")}</span>
+                  <h3>{work.title}</h3>
+                  <p>{work.summary}</p>
+                  <div className="work-card-foot"><span>LIUHAN · ORIGINAL</span><b>{work.url ? "阅读原文 ↗" : "作品链接整理中"}</b></div>
+                </>
+              );
+              return work.url ? (
+                <a className="work-card reveal" href={work.url} target="_blank" rel="noreferrer" key={`${work.title}-${index}`} aria-label={`阅读原创作品：${work.title}`}>{cardContent}</a>
+              ) : (
+                <article className="work-card reveal is-archive" key={`${work.title}-${index}`}>{cardContent}</article>
+              );
+            })}
           </div>
         </section>
 
