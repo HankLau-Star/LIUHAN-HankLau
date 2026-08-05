@@ -5,16 +5,16 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://ascender-archive-01
 const description = "跨界数字创作者的个人档案：在个人、社会与自然三个世界中持续升级，向外创造。";
 
 export const metadata: Metadata = {
-  title: "ASCENDER｜独自升级，向外创造",
+  title: "LIUHAN · HankLau｜独自升级，向外创造",
   description,
   openGraph: {
-    title: "ASCENDER｜独自升级，向外创造",
+    title: "LIUHAN · HankLau｜独自升级，向外创造",
     description,
-    images: [{ url: `${siteUrl}/og-v2.png`, width: 1728, height: 910, alt: "ASCENDER 觉醒主题个人网站" }],
+    images: [{ url: `${siteUrl}/og-v2.png`, width: 1728, height: 910, alt: "LIUHAN / HankLau 觉醒主题个人网站" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "ASCENDER｜独自升级，向外创造",
+    title: "LIUHAN · HankLau｜独自升级，向外创造",
     description,
     images: [`${siteUrl}/og-v2.png`],
   },

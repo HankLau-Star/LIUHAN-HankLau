@@ -13,7 +13,7 @@ export default async function AdminPage() {
     return (
       <main className="admin-denied">
         <div className="admin-denied-card">
-          <span>ASCENDER / ACCESS CONTROL</span>
+          <span>LIUHAN / ACCESS CONTROL</span>
           <h1>{configured ? "此账号没有管理权限。" : "管理账号尚未配置。"}</h1>
           <p>{configured ? `当前登录账号：${user.email}` : "部署前需要为站点设置 ADMIN_EMAILS，只有指定账号可以保存网站内容。"}</p>
           <div><a href="/">返回网站</a><a href={chatGPTSignOutPath("/admin")}>切换账号</a></div>

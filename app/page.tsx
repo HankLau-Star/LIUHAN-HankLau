@@ -5,7 +5,6 @@ import { defaultSiteContent, normalizeSiteContent, type SiteContent } from "../l
 
 const navItems = [
   { id: "personal", label: "个人" },
-  { id: "works", label: "代表作品" },
   { id: "society", label: "社会世界" },
   { id: "nature", label: "自然世界" },
   { id: "contact", label: "联系方式" },
@@ -13,10 +12,6 @@ const navItems = [
 
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 const hostedApi = "https://ascender-archive-01.valid-gnat-7482.chatgpt.site";
-
-function assetUrl(value: string): string {
-  return value.startsWith("/") ? `${basePath}${value}` : value;
-}
 
 function publicContentEndpoint(): string {
   if (typeof window !== "undefined" && window.location.hostname.endsWith("github.io")) {
@@ -94,7 +89,7 @@ export default function Home() {
       <div className="ambient-glow" aria-hidden="true" />
       <header className="site-header">
         <a className="brand" href="#top" aria-label="返回首页">
-          <span className="brand-mark">A</span>
+          <span className="brand-mark">HL</span>
           <span>{content.brand.name}<small>{content.brand.subtitle}</small></span>
         </a>
         <nav className={menuOpen ? "main-nav is-open" : "main-nav"} aria-label="主导航">
@@ -129,7 +124,7 @@ export default function Home() {
             <p className="hero-intro hero-stagger">{content.hero.intro}</p>
             <div className="hero-actions hero-stagger">
               <a className="button button-primary" href="#personal">打开个人档案 <b>↘</b></a>
-              <a className="button button-ghost" href="#works">查看代表作品 →</a>
+              <a className="button button-ghost" href="#output">查看代表作品 →</a>
             </div>
           </div>
           <div className="awakening-mark hero-stagger" aria-hidden="true"><span>LEVEL</span><strong>∞</strong><i>EVOLVE / CREATE / ASCEND</i></div>
@@ -164,34 +159,6 @@ export default function Home() {
             <div className="chapter-intro"><span>01—C</span><h3>输出</h3><p>所有积累最终都要变成作品、实践、连接，以及可被社会感知的价值。</p></div>
             <div className="output-grid">{content.outputs.map((item, index) => <article key={`${item.title}-${index}`}><span>{item.label || String(index + 1).padStart(2, "0")}</span><h4>{item.title}</h4><p>{item.body}</p></article>)}</div>
             <div className="experience-strip">{content.experiences.map((item) => <article key={`${item.company}-${item.role}`}><small>{item.role}</small><h4>{item.company}</h4><p>{item.body}</p></article>)}</div>
-          </div>
-        </section>
-
-        <section className="works section-shell" id="works">
-          <div className="works-radar" aria-hidden="true"><i /><i /><i /></div>
-          <div className="section-heading reveal">
-            <div><span className="section-index">01—D / SELECTED WORKS</span><h2>代表作品</h2></div>
-            <p>{content.projectsIntro}</p>
-          </div>
-          <div className="project-grid">
-            {content.projects.map((project, index) => (
-              <article className={`project-card reveal ${index === 0 ? "is-featured" : ""}`} key={project.id || `${project.title}-${index}`}>
-                <div className={`project-media ${project.imageUrl ? "" : "is-empty"}`}>
-                  {project.imageUrl ? <img src={assetUrl(project.imageUrl)} alt={`${project.title} 项目封面`} /> : <div className="project-placeholder"><span>{String(index + 1).padStart(2, "0")}</span><b>AWAITING VISUAL</b></div>}
-                  <div className="project-glitch" aria-hidden="true" />
-                  <span className="project-number">0{index + 1}</span>
-                </div>
-                <div className="project-copy">
-                  <div className="project-meta"><span>{project.type}</span><time>{project.year}</time></div>
-                  <h3>{project.title}</h3>
-                  <p>{project.summary}</p>
-                  <div className="project-footer">
-                    <div className="project-tags">{project.tags.map((tag) => <span key={tag}>{tag}</span>)}</div>
-                    {project.projectUrl ? <a href={project.projectUrl} target="_blank" rel="noreferrer" aria-label={`打开作品：${project.title}`}>VIEW PROJECT ↗</a> : <span className="link-pending">LINK PENDING</span>}
-                  </div>
-                </div>
-              </article>
-            ))}
           </div>
         </section>
 
@@ -249,7 +216,7 @@ export default function Home() {
         </section>
       </main>
       <footer className="site-footer">
-        <div className="brand footer-brand"><span className="brand-mark">A</span><span>{content.brand.name}<small>{content.brand.subtitle}</small></span></div>
+        <div className="brand footer-brand"><span className="brand-mark">HL</span><span>{content.brand.name}<small>{content.brand.subtitle}</small></span></div>
         <p>PERSON · SOCIETY · NATURE<br /><span>向内生长，向外创造。</span></p>
         <div><span>© 2026</span><a href="/admin" className="admin-entry">CONTENT CONSOLE</a><a href="#top">BACK TO TOP ↑</a></div>
       </footer>

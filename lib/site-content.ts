@@ -27,17 +27,6 @@ export type PlatformItem = {
   detail: string;
 };
 
-export type ProjectItem = {
-  id: string;
-  type: string;
-  year: string;
-  title: string;
-  summary: string;
-  imageUrl: string;
-  projectUrl: string;
-  tags: string[];
-};
-
 export type SiteContent = {
   brand: {
     name: string;
@@ -58,8 +47,6 @@ export type SiteContent = {
   inputs: StoryItem[];
   outputs: StoryItem[];
   experiences: ExperienceItem[];
-  projectsIntro: string;
-  projects: ProjectItem[];
   societySummary: string;
   metrics: MetricItem[];
   platforms: PlatformItem[];
@@ -81,13 +68,13 @@ export type SiteContent = {
 
 export const defaultSiteContent: SiteContent = {
   brand: {
-    name: "ASCENDER",
-    subtitle: "PERSONAL ARCHIVE",
+    name: "LIUHAN",
+    subtitle: "HankLau · HL",
     status: "OPEN TO CREATE",
   },
   hero: {
     system: "SYSTEM // AWAKENING",
-    eyebrow: "PERSON · SOCIETY · NATURE",
+    eyebrow: "LIUHAN · HankLau · HL",
     lineOne: "独自升级，",
     lineTwo: "向外",
     accent: "创造。",
@@ -129,39 +116,6 @@ export const defaultSiteContent: SiteContent = {
     { company: "公考机构", role: "全媒体运营", body: "参与多平台内容生产与分发，积累全媒体协同经验。" },
     { company: "36氪", role: "AI 产品内容测评", body: "围绕 AI 产品展开体验、测评与表达，让复杂技术被更多人理解。" },
   ],
-  projectsIntro: "把能力转化为可以被看见、被访问、被验证的作品。这里将持续更新视觉实验、内容案例与产品实践。",
-  projects: [
-    {
-      id: "awakening-visual",
-      type: "VISUAL EXPERIMENT",
-      year: "2026",
-      title: "我独自升级 · 觉醒视觉实验",
-      summary: "以深蓝能量、空间层级与角色叙事重构个人品牌首页，探索动漫情绪与高级数字界面的结合。",
-      imageUrl: "/solo-awakening.png",
-      projectUrl: "",
-      tags: ["ART DIRECTION", "WEB", "MOTION"],
-    },
-    {
-      id: "ascender-archive",
-      type: "PERSONAL BRAND",
-      year: "2026",
-      title: "ASCENDER · 个人档案系统",
-      summary: "围绕个人、社会与自然三个世界建立内容结构，让经历、能力和长期方向形成统一叙事。",
-      imageUrl: "/hero-ascent.png",
-      projectUrl: "",
-      tags: ["STRATEGY", "IDENTITY", "SYSTEM"],
-    },
-    {
-      id: "ai-content-lab",
-      type: "AI × CONTENT",
-      year: "ONGOING",
-      title: "AI 产品与内容增长实验室",
-      summary: "持续记录 AI 工具测评、内容工作流和多平台增长实践，未来在此连接完整案例。",
-      imageUrl: "",
-      projectUrl: "",
-      tags: ["AI", "RESEARCH", "GROWTH"],
-    },
-  ],
   societySummary: "通过内容、社群与协作进入更大的关系网络，让个人输出在真实世界中产生回声。",
   metrics: [
     { label: "PUBLIC REACH", value: "25K+", detail: "全平台粉丝矩阵" },
@@ -192,11 +146,11 @@ export const defaultSiteContent: SiteContent = {
   ],
   contact: {
     heading: "保持联系。",
-    body: "对创意技术、内容项目、品牌合作、AI 产品与跨界实验保持开放。",
-    emailLabel: "邮箱 · 待补充",
-    emailUrl: "",
-    socialLabel: "社交账号 · 待补充",
-    socialUrl: "",
+    body: "对创意技术、内容项目、品牌合作、AI 产品与跨界实验保持开放。你可以通过邮箱或 Linktree 找到 LIUHAN / HankLau / HL。",
+    emailLabel: "veritasrensheng@gmail.com",
+    emailUrl: "mailto:veritasrensheng@gmail.com",
+    socialLabel: "LINKTREE · HANKLAU",
+    socialUrl: "https://linktr.ee/HankLau",
   },
 };
 
@@ -247,7 +201,6 @@ function cleanList<T extends Record<string, string>>(
 
 export function normalizeSiteContent(value: unknown): SiteContent {
   const source = isRecord(value) ? value : {};
-  const projectSource = Array.isArray(source.projects) ? source.projects.slice(0, 18) : defaultSiteContent.projects;
 
   return {
     brand: cleanObject(source.brand, defaultSiteContent.brand),
@@ -258,32 +211,6 @@ export function normalizeSiteContent(value: unknown): SiteContent {
     inputs: cleanList(source.inputs, defaultSiteContent.inputs, 12),
     outputs: cleanList(source.outputs, defaultSiteContent.outputs, 18),
     experiences: cleanList(source.experiences, defaultSiteContent.experiences, 18),
-    projectsIntro: cleanText(source.projectsIntro, defaultSiteContent.projectsIntro),
-    projects: projectSource.map((item, index) => {
-      const fallback = defaultSiteContent.projects[index] ?? {
-        id: `project-${index + 1}`,
-        type: "SELECTED WORK",
-        year: "ONGOING",
-        title: "新作品",
-        summary: "在后台补充这件作品的简介。",
-        imageUrl: "",
-        projectUrl: "",
-        tags: [],
-      };
-      const sourceItem = isRecord(item) ? item : {};
-      return {
-        id: cleanText(sourceItem.id, fallback.id || `project-${index + 1}`).replace(/[^a-zA-Z0-9-_]/g, "-").slice(0, 80),
-        type: cleanText(sourceItem.type, fallback.type),
-        year: cleanText(sourceItem.year, fallback.year),
-        title: cleanText(sourceItem.title, fallback.title),
-        summary: cleanText(sourceItem.summary, fallback.summary),
-        imageUrl: cleanUrl(sourceItem.imageUrl, fallback.imageUrl),
-        projectUrl: cleanUrl(sourceItem.projectUrl, fallback.projectUrl),
-        tags: Array.isArray(sourceItem.tags)
-          ? sourceItem.tags.slice(0, 8).map((tag) => cleanText(tag).slice(0, 40)).filter(Boolean)
-          : fallback.tags,
-      };
-    }),
     societySummary: cleanText(source.societySummary, defaultSiteContent.societySummary),
     metrics: cleanList(source.metrics, defaultSiteContent.metrics, 8),
     platforms: cleanList(source.platforms, defaultSiteContent.platforms, 18),
