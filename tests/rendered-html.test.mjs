@@ -69,7 +69,11 @@ test("the Instagram video is bundled as a muted scrolling backdrop", async () =>
   ]);
 
   assert.match(page, /ins-viral-video\.mp4/);
-  assert.match(page, /<video autoPlay muted loop playsInline/);
+  assert.match(page, /<video aria-hidden="true" autoPlay muted loop playsInline/);
+  assert.match(page, /我的原创 AI 作品/);
+  assert.match(page, /150万播放量/);
+  assert.match(page, /Nothing great was ever achieved without enthusiasm\./);
+  assert.match(page, /刘涵 · 류한/);
   assert.equal(video.subarray(4, 8).toString("ascii"), "ftyp");
   assert.ok(video.length > 1_000_000);
 });

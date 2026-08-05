@@ -39,6 +39,12 @@ export default function Home() {
   useEffect(() => {
     const root = document.documentElement;
     let frame = 0;
+    let narrativeVideoActive = false;
+    const narrativeStart = document.getElementById("personal");
+    const narrativeEnd = document.getElementById("nature");
+    const narrativeVideoLayer = document.querySelector<HTMLElement>(".site-video-layer");
+    const narrativeVideo = narrativeVideoLayer?.querySelector<HTMLVideoElement>("video");
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
     const updatePointer = (event: PointerEvent) => {
       if (!finePointer) return;
@@ -48,12 +54,27 @@ export default function Home() {
         root.style.setProperty("--pointer-y", `${event.clientY}px`);
         root.style.setProperty("--hero-shift-x", `${(event.clientX / window.innerWidth - 0.5) * 18}px`);
         root.style.setProperty("--hero-shift-y", `${(event.clientY / window.innerHeight - 0.5) * 12}px`);
+        root.style.setProperty("--hero-title-tilt-x", `${(0.5 - event.clientY / window.innerHeight) * 4}deg`);
+        root.style.setProperty("--hero-title-tilt-y", `${(event.clientX / window.innerWidth - 0.5) * 5}deg`);
+        root.style.setProperty("--hero-title-light", `${Math.round((event.clientX / window.innerWidth) * 100)}%`);
       });
+    };
+    const syncNarrativeVideo = () => {
+      if (!narrativeStart || !narrativeEnd || !narrativeVideoLayer || !narrativeVideo) return;
+      const startTop = narrativeStart.getBoundingClientRect().top;
+      const endBottom = narrativeEnd.getBoundingClientRect().bottom;
+      const shouldPlay = !reduceMotion && startTop <= window.innerHeight * 0.72 && endBottom >= window.innerHeight * 0.22;
+      if (shouldPlay === narrativeVideoActive) return;
+      narrativeVideoActive = shouldPlay;
+      narrativeVideoLayer.classList.toggle("is-active", shouldPlay);
+      if (shouldPlay) narrativeVideo.play().catch(() => undefined);
+      else narrativeVideo.pause();
     };
     const updateScroll = () => {
       const range = document.documentElement.scrollHeight - window.innerHeight;
       root.style.setProperty("--scroll-progress", `${range > 0 ? Math.min((window.scrollY / range) * 100, 100) : 0}%`);
       root.style.setProperty("--hero-parallax", `${Math.min(window.scrollY, 700) * 0.08}px`);
+      syncNarrativeVideo();
     };
     const revealObserver = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
@@ -66,19 +87,8 @@ export default function Home() {
         .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
       if (current?.target.id) setActiveSection(current.target.id);
     }, { rootMargin: "-30% 0px -55%", threshold: [0, 0.2, 0.6] });
-    const societySection = document.getElementById("society");
-    const societyVideo = societySection?.querySelector<HTMLVideoElement>("video");
-    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const societyVideoObserver = new IntersectionObserver(([entry]) => {
-      const isActive = Boolean(entry?.isIntersecting) && !reduceMotion;
-      societySection?.classList.toggle("is-video-active", isActive);
-      if (isActive) societyVideo?.play().catch(() => undefined);
-      else societyVideo?.pause();
-    }, { rootMargin: "-8% 0px -8%", threshold: 0.02 });
-
     document.querySelectorAll(".reveal").forEach((item) => revealObserver.observe(item));
     document.querySelectorAll("main section[id]").forEach((item) => sectionObserver.observe(item));
-    if (societySection) societyVideoObserver.observe(societySection);
     window.addEventListener("pointermove", updatePointer, { passive: true });
     window.addEventListener("scroll", updateScroll, { passive: true });
     updateScroll();
@@ -87,9 +97,8 @@ export default function Home() {
       cancelAnimationFrame(frame);
       revealObserver.disconnect();
       sectionObserver.disconnect();
-      societyVideoObserver.disconnect();
-      societySection?.classList.remove("is-video-active");
-      societyVideo?.pause();
+      narrativeVideoLayer?.classList.remove("is-active");
+      narrativeVideo?.pause();
       window.removeEventListener("pointermove", updatePointer);
       window.removeEventListener("scroll", updateScroll);
     };
@@ -132,10 +141,17 @@ export default function Home() {
           <div className="hero-scanline" aria-hidden="true" />
           <div className="hero-copy">
             <div className="system-chip hero-stagger"><i /> {content.hero.system}</div>
-            <div className="eyebrow hero-stagger">{content.hero.eyebrow}</div>
-            <h1 className="hero-stagger" data-text={content.hero.lineOne}>{content.hero.lineOne}</h1>
+            <div className="hero-identity hero-stagger">
+              <strong>{content.brand.name}</strong>
+              <span><b>刘涵 · 류한</b><small>{content.brand.subtitle}</small></span>
+            </div>
+            <div className="hero-title-wrap hero-stagger"><h1 data-text={content.hero.lineOne}>{content.hero.lineOne}</h1></div>
             <p className="hero-motto hero-stagger">{content.hero.lineTwo}<span>{content.hero.accent}</span></p>
             <p className="hero-intro hero-stagger">{content.hero.intro}</p>
+            <blockquote className="hero-quote hero-stagger">
+              <p>Nothing great was ever achieved without enthusiasm.</p>
+              <cite>— Ralph Waldo Emerson</cite>
+            </blockquote>
             <div className="hero-actions hero-stagger">
               <a className="button button-primary" href="#personal">打开个人档案 <b>↘</b></a>
               <a className="button button-ghost" href="#works">查看代表作品 →</a>
@@ -148,6 +164,13 @@ export default function Home() {
             <a href="#nature"><small>03</small><strong>自然世界</strong><span>身体 · 感知 · 长期主义</span></a>
           </div>
         </section>
+
+        <div className="site-video-layer">
+          <video aria-hidden="true" autoPlay muted loop playsInline preload="metadata">
+            <source src={`${basePath}/ins-viral-video.mp4`} type="video/mp4" />
+          </video>
+          <span className="site-video-credit"><i /><b>我的原创 AI 作品</b><small>INSTAGRAM · 150万播放量</small></span>
+        </div>
 
         <section className="section-shell personal" id="personal">
           <div className="section-code" aria-hidden="true">PERSON / 01</div>
@@ -197,12 +220,6 @@ export default function Home() {
         </section>
 
         <section className="impact section-shell society" id="society">
-          <div className="society-video-layer" aria-hidden="true">
-            <video autoPlay muted loop playsInline preload="metadata">
-              <source src={`${basePath}/ins-viral-video.mp4`} type="video/mp4" />
-            </video>
-            <span className="society-video-label"><i /> ORIGINAL REACH / INSTAGRAM</span>
-          </div>
           <div className="signal-field" aria-hidden="true"><i /><i /><i /><i /></div>
           <div className="section-heading reveal">
             <div><span className="section-index">02 / SOCIAL WORLD</span><h2>社会世界</h2></div>
