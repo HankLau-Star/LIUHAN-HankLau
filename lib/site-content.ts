@@ -194,7 +194,7 @@ export const defaultSiteContent: SiteContent = {
   ],
   contact: {
     heading: "保持联系。",
-    body: "对创意技术、内容项目、品牌合作、AI 产品与跨界实验保持开放。你可以通过邮箱或 Linktree 找到 LIUHAN / HankLau / HL。",
+    body: "我始终对真实、坦诚、有意思的交流保持开放。无论你来自哪里、正在做什么，只要想认识我、交换想法或一起成长，都欢迎随时联系。保持开放，快速成长。",
     emailLabel: "veritasrensheng@gmail.com",
     emailUrl: "mailto:veritasrensheng@gmail.com",
     socialLabel: "LINKTREE · HANKLAU",
