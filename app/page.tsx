@@ -5,7 +5,6 @@ import { defaultSiteContent, normalizeSiteContent, type SiteContent } from "../l
 
 const navItems = [
   { id: "personal", label: "个人" },
-  { id: "works", label: "代表作品" },
   { id: "society", label: "社会世界" },
   { id: "nature", label: "自然世界" },
   { id: "contact", label: "联系方式" },
@@ -121,7 +120,7 @@ export default function Home() {
           <div className="hero-copy">
             <div className="system-chip hero-stagger"><i /> {content.hero.system}</div>
             <div className="eyebrow hero-stagger">{content.hero.eyebrow}</div>
-            <h1 className="hero-stagger">{content.hero.lineOne}</h1>
+            <h1 className="hero-stagger" data-text={content.hero.lineOne}>{content.hero.lineOne}</h1>
             <p className="hero-motto hero-stagger">{content.hero.lineTwo}<span>{content.hero.accent}</span></p>
             <p className="hero-intro hero-stagger">{content.hero.intro}</p>
             <div className="hero-actions hero-stagger">
@@ -131,7 +130,7 @@ export default function Home() {
           </div>
           <div className="awakening-mark hero-stagger" aria-hidden="true"><span>LEVEL</span><strong>∞</strong><i>EVOLVE / CREATE / ASCEND</i></div>
           <div className="world-map hero-stagger" aria-label="三部分内容结构">
-            <a href="#personal"><small>01</small><strong>个人</strong><span>实力与背书 · 输入 · 输出</span></a>
+            <a href="#personal"><small>01</small><strong>个人</strong><span>实力与背书 · 输入 · 输出 · 作品</span></a>
             <a href="#society"><small>02</small><strong>社会世界</strong><span>连接 · 协作 · 公共影响</span></a>
             <a href="#nature"><small>03</small><strong>自然世界</strong><span>身体 · 感知 · 长期主义</span></a>
           </div>
@@ -162,31 +161,25 @@ export default function Home() {
             <div className="output-grid">{content.outputs.map((item, index) => <article key={`${item.title}-${index}`}><span>{item.label || String(index + 1).padStart(2, "0")}</span><h4>{item.title}</h4><p>{item.body}</p></article>)}</div>
             <div className="experience-strip">{content.experiences.map((item) => <article key={`${item.company}-${item.role}`}><small>{item.role}</small><h4>{item.company}</h4><p>{item.body}</p></article>)}</div>
           </div>
-        </section>
 
-        <section className="selected-works section-shell" id="works">
-          <div className="works-watermark" aria-hidden="true">ORIGINAL</div>
-          <div className="section-heading reveal">
-            <div><span className="section-index">SELECTED / ORIGINAL WORKS</span><h2>代表作品</h2></div>
-            <p>{content.worksIntro}</p>
-          </div>
-          <div className="works-grid">
-            {content.works.map((work, index) => {
-              const cardContent = (
-                <>
-                  <div className="work-card-top"><span>{work.platform}</span><strong>{work.metric}</strong></div>
-                  <span className="work-number">{String(index + 1).padStart(2, "0")}</span>
-                  <h3>{work.title}</h3>
-                  <p>{work.summary}</p>
-                  <div className="work-card-foot"><span>LIUHAN · ORIGINAL</span><b>{work.url ? "阅读原文 ↗" : "作品链接整理中"}</b></div>
-                </>
-              );
-              return work.url ? (
-                <a className="work-card reveal" href={work.url} target="_blank" rel="noreferrer" key={`${work.title}-${index}`} aria-label={`阅读原创作品：${work.title}`}>{cardContent}</a>
-              ) : (
-                <article className="work-card reveal is-archive" key={`${work.title}-${index}`}>{cardContent}</article>
-              );
-            })}
+          <div className="chapter-block selected-works reveal" id="works">
+            <div className="works-watermark" aria-hidden="true">ORIGINAL</div>
+            <div className="chapter-intro works-intro"><span>01—D / SELECTED WORKS</span><h3>代表作品</h3><p>{content.worksIntro}</p></div>
+            <div className="works-grid">
+              {content.works.map((work, index) => {
+                const isWechat = work.platform.startsWith("WECHAT");
+                const cardContent = (
+                  <>
+                    <div className="work-card-top"><span>{work.platform}</span><strong>{work.metric}</strong></div>
+                    <span className="work-number">{String(index + 1).padStart(2, "0")}</span>
+                    <h3>{work.title}</h3>
+                    <p className={isWechat ? "work-excerpt is-note" : "work-excerpt"}>{isWechat ? work.summary : <><i>“</i>{work.summary}<i>”</i></>}</p>
+                    <div className="work-card-foot"><span>LIUHAN · ORIGINAL</span><b>阅读全文 ↗</b></div>
+                  </>
+                );
+                return <a className="work-card" href={work.url} target="_blank" rel="noreferrer" key={`${work.title}-${index}`} aria-label={`阅读原创作品：${work.title}`}>{cardContent}</a>;
+              })}
+            </div>
           </div>
         </section>
 

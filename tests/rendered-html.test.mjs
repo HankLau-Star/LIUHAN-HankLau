@@ -9,8 +9,9 @@ test("default content contains the complete portfolio structure", () => {
   assert.ok(defaultSiteContent.metrics.some((item) => item.value === "300W+"));
   assert.equal(defaultSiteContent.hero.lineOne, "ASCENDER");
   assert.equal(defaultSiteContent.hero.lineTwo, "向内生长，");
-  assert.equal(defaultSiteContent.works.length, 4);
+  assert.equal(defaultSiteContent.works.length, 5);
   assert.ok(defaultSiteContent.works.slice(0, 3).every((item) => item.url.startsWith("https://www.zhihu.com/pin/")));
+  assert.ok(defaultSiteContent.works.slice(3).every((item) => item.url.startsWith("https://mp.weixin.qq.com/s/")));
   assert.equal(defaultSiteContent.brand.name, "LIUHAN");
   assert.match(defaultSiteContent.brand.subtitle, /HankLau · HL/);
   assert.equal(defaultSiteContent.contact.emailUrl, "mailto:veritasrensheng@gmail.com");
