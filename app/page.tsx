@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type CSSProperties } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { defaultSiteContent, normalizeSiteContent, type SiteContent } from "../lib/site-content";
 
 const navItems = [
@@ -24,6 +24,28 @@ export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("personal");
   const [content, setContent] = useState<SiteContent>(defaultSiteContent);
+  const [musicOn, setMusicOn] = useState(false);
+  const [musicError, setMusicError] = useState(false);
+  const audioRef = useRef<HTMLAudioElement>(null);
+
+  const toggleMusic = async () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.volume = 0.5;
+    setMusicError(false);
+
+    if (audio.paused) {
+      try {
+        await audio.play();
+      } catch {
+        setMusicError(true);
+        setMusicOn(false);
+      }
+      return;
+    }
+
+    audio.pause();
+  };
 
   useEffect(() => {
     const controller = new AbortController();
@@ -100,6 +122,26 @@ export default function Home() {
           ))}
         </nav>
         <div className="header-actions">
+          <audio
+            ref={audioRef}
+            src={`${basePath}/ascender-night-drive.wav`}
+            loop
+            preload="metadata"
+            onPlay={() => setMusicOn(true)}
+            onPause={() => setMusicOn(false)}
+            onError={() => setMusicError(true)}
+          />
+          <button
+            className={musicOn ? "sound-toggle is-playing" : "sound-toggle"}
+            type="button"
+            aria-label={musicOn ? "关闭原创背景音乐" : "播放原创背景音乐"}
+            aria-pressed={musicOn}
+            title="原创配乐：ASCENDER // NIGHT DRIVE"
+            onClick={toggleMusic}
+          >
+            <span className="sound-bars" aria-hidden="true"><i /><i /><i /><i /></span>
+            <span className="sound-copy"><strong>{musicError ? "AUDIO ERROR" : musicOn ? "PHONK ON" : "PHONK"}</strong><small>ORIGINAL MIX</small></span>
+          </button>
           <span className="status-pill"><i /> {content.brand.status}</span>
           <button className="menu-button" type="button" aria-label="切换导航菜单" aria-expanded={menuOpen} onClick={() => setMenuOpen(!menuOpen)}><span /><span /></button>
         </div>

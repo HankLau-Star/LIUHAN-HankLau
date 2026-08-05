@@ -61,3 +61,16 @@ test("front page and protected admin routes are wired", async () => {
   assert.match(publicApi, /Access-Control-Allow-Origin/);
   assert.match(adminApi, /getAuthorizedAdmin/);
 });
+
+test("the original soundtrack is bundled with an accessible player", async () => {
+  const [page, audio] = await Promise.all([
+    readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../public/ascender-night-drive.wav", import.meta.url)),
+  ]);
+
+  assert.match(page, /ascender-night-drive\.wav/);
+  assert.match(page, /aria-pressed=\{musicOn\}/);
+  assert.equal(audio.subarray(0, 4).toString("ascii"), "RIFF");
+  assert.equal(audio.subarray(8, 12).toString("ascii"), "WAVE");
+  assert.ok(audio.length > 1_000_000);
+});
