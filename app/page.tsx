@@ -28,11 +28,13 @@ export default function Home() {
   const [musicPlaying, setMusicPlaying] = useState(false);
   const [content, setContent] = useState<SiteContent>(defaultSiteContent);
   const soundtrackRef = useRef<HTMLAudioElement>(null);
+  const musicSuppressedRef = useRef(false);
 
   const toggleSoundtrack = async () => {
     const audio = soundtrackRef.current;
     if (!audio) return;
     if (audio.paused) {
+      musicSuppressedRef.current = false;
       audio.volume = 0.36;
       try {
         await audio.play();
@@ -41,6 +43,7 @@ export default function Home() {
         setMusicPlaying(false);
       }
     } else {
+      musicSuppressedRef.current = true;
       audio.pause();
       setMusicPlaying(false);
     }
@@ -58,13 +61,55 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
+    const audio = soundtrackRef.current;
+    if (!audio) return;
+    let mounted = true;
+    audio.volume = 0.36;
+
+    const stopListening = () => {
+      window.removeEventListener("pointerdown", resumeAfterInteraction);
+      window.removeEventListener("keydown", resumeAfterInteraction);
+    };
+    const attemptPlayback = async () => {
+      if (musicSuppressedRef.current) return;
+      if (!audio.paused) {
+        if (mounted) setMusicPlaying(true);
+        stopListening();
+        return;
+      }
+      try {
+        await audio.play();
+        if (mounted) setMusicPlaying(true);
+        stopListening();
+      } catch {
+        if (mounted) setMusicPlaying(false);
+      }
+    };
+    function resumeAfterInteraction(event: Event) {
+      if (event.target instanceof Element && event.target.closest(".music-toggle")) return;
+      void attemptPlayback();
+    }
+
+    window.addEventListener("pointerdown", resumeAfterInteraction, { passive: true });
+    window.addEventListener("keydown", resumeAfterInteraction);
+    void attemptPlayback();
+
+    return () => {
+      mounted = false;
+      stopListening();
+    };
+  }, []);
+
+  useEffect(() => {
     const root = document.documentElement;
     let frame = 0;
-    let narrativeVideoActive = false;
-    const narrativeStart = document.getElementById("personal");
-    const narrativeEnd = document.getElementById("nature");
-    const narrativeVideoLayer = document.querySelector<HTMLElement>(".site-video-layer");
-    const narrativeVideo = narrativeVideoLayer?.querySelector<HTMLVideoElement>("video");
+    let activeNarrative = "";
+    const narrativeVideos = Array.from(document.querySelectorAll<HTMLElement>(".site-video-layer[data-section]")).map((layer) => ({
+      id: layer.dataset.section ?? "",
+      layer,
+      section: document.getElementById(layer.dataset.section ?? ""),
+      video: layer.querySelector<HTMLVideoElement>("video"),
+    }));
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
     const updatePointer = (event: PointerEvent) => {
@@ -80,22 +125,29 @@ export default function Home() {
         root.style.setProperty("--hero-title-light", `${Math.round((event.clientX / window.innerWidth) * 100)}%`);
       });
     };
-    const syncNarrativeVideo = () => {
-      if (!narrativeStart || !narrativeEnd || !narrativeVideoLayer || !narrativeVideo) return;
-      const startTop = narrativeStart.getBoundingClientRect().top;
-      const endBottom = narrativeEnd.getBoundingClientRect().bottom;
-      const shouldPlay = !reduceMotion && startTop <= window.innerHeight * 0.72 && endBottom >= window.innerHeight * 0.22;
-      if (shouldPlay === narrativeVideoActive) return;
-      narrativeVideoActive = shouldPlay;
-      narrativeVideoLayer.classList.toggle("is-active", shouldPlay);
-      if (shouldPlay) narrativeVideo.play().catch(() => undefined);
-      else narrativeVideo.pause();
+    const syncNarrativeVideos = () => {
+      const focusLine = window.innerHeight * 0.46;
+      const next = reduceMotion ? undefined : narrativeVideos.find(({ section }) => {
+        if (!section) return false;
+        const bounds = section.getBoundingClientRect();
+        return bounds.top <= focusLine && bounds.bottom >= focusLine;
+      });
+      const nextId = next?.id ?? "";
+      if (nextId === activeNarrative) return;
+      activeNarrative = nextId;
+      narrativeVideos.forEach(({ id, layer, video }) => {
+        const shouldPlay = id === nextId;
+        layer.classList.toggle("is-active", shouldPlay);
+        if (!video) return;
+        if (shouldPlay) video.play().catch(() => undefined);
+        else video.pause();
+      });
     };
     const updateScroll = () => {
       const range = document.documentElement.scrollHeight - window.innerHeight;
       root.style.setProperty("--scroll-progress", `${range > 0 ? Math.min((window.scrollY / range) * 100, 100) : 0}%`);
       root.style.setProperty("--hero-parallax", `${Math.min(window.scrollY, 700) * 0.08}px`);
-      syncNarrativeVideo();
+      syncNarrativeVideos();
     };
     const revealObserver = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
@@ -118,8 +170,10 @@ export default function Home() {
       cancelAnimationFrame(frame);
       revealObserver.disconnect();
       sectionObserver.disconnect();
-      narrativeVideoLayer?.classList.remove("is-active");
-      narrativeVideo?.pause();
+      narrativeVideos.forEach(({ layer, video }) => {
+        layer.classList.remove("is-active");
+        video?.pause();
+      });
       window.removeEventListener("pointermove", updatePointer);
       window.removeEventListener("scroll", updateScroll);
     };
@@ -130,7 +184,7 @@ export default function Home() {
       <a className="skip-link" href="#main-content">跳至主要内容</a>
       <div className="reading-progress" aria-hidden="true" />
       <div className="ambient-glow" aria-hidden="true" />
-      <audio ref={soundtrackRef} src={soundtrackUrl} loop preload="none" onEnded={() => setMusicPlaying(false)} />
+      <audio ref={soundtrackRef} src={soundtrackUrl} autoPlay loop preload="auto" onPlay={() => setMusicPlaying(true)} onPause={() => setMusicPlaying(false)} />
       <header className="site-header">
         <a className="brand" href="#top" aria-label="返回首页">
           <span className="brand-mark">HL</span>
@@ -190,11 +244,25 @@ export default function Home() {
           </div>
         </section>
 
-        <div className="site-video-layer">
-          <video aria-hidden="true" autoPlay muted loop playsInline preload="metadata">
+        <div className="site-video-layer" data-section="personal" data-world="personal">
+          <video aria-hidden="true" muted loop playsInline preload="metadata">
             <source src={`${basePath}/ins-viral-video.mp4`} type="video/mp4" />
           </video>
           <span className="site-video-credit"><i /><b>我的原创 AI 作品</b><small>INSTAGRAM · 150万播放量</small></span>
+        </div>
+
+        <div className="site-video-layer" data-section="society" data-world="society">
+          <video aria-hidden="true" muted loop playsInline preload="metadata">
+            <source src={`${basePath}/ue-first-project.mp4`} type="video/mp4" />
+          </video>
+          <span className="site-video-credit"><i /><b>我的首个虚幻引擎 UE 作品</b><small>UNREAL ENGINE · FIRST PROJECT</small></span>
+        </div>
+
+        <div className="site-video-layer" data-section="nature" data-world="nature">
+          <video aria-hidden="true" muted loop playsInline preload="metadata">
+            <source src={`${basePath}/chopsticks-ai-film.mp4`} type="video/mp4" />
+          </video>
+          <span className="site-video-credit"><i /><b>我的首个 AI 全流程电影</b><small>《一双筷子》 · ORIGINAL FILM</small></span>
         </div>
 
         <section className="section-shell personal" id="personal">

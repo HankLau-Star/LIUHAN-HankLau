@@ -68,20 +68,32 @@ test("front page and protected admin routes are wired", async () => {
   assert.match(adminApi, /getAuthorizedAdmin/);
 });
 
-test("the Instagram video is bundled as a muted scrolling backdrop", async () => {
-  const [page, video] = await Promise.all([
+test("each world has its own optimized muted video backdrop", async () => {
+  const [page, personalVideo, societyVideo, natureVideo] = await Promise.all([
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../public/ins-viral-video.mp4", import.meta.url)),
+    readFile(new URL("../public/ue-first-project.mp4", import.meta.url)),
+    readFile(new URL("../public/chopsticks-ai-film.mp4", import.meta.url)),
   ]);
 
   assert.match(page, /ins-viral-video\.mp4/);
-  assert.match(page, /<video aria-hidden="true" autoPlay muted loop playsInline/);
+  assert.match(page, /ue-first-project\.mp4/);
+  assert.match(page, /chopsticks-ai-film\.mp4/);
+  assert.match(page, /data-section="personal"/);
+  assert.match(page, /data-section="society"/);
+  assert.match(page, /data-section="nature"/);
+  assert.match(page, /<video aria-hidden="true" muted loop playsInline/);
   assert.match(page, /我的原创 AI 作品/);
   assert.match(page, /150万播放量/);
+  assert.match(page, /我的首个虚幻引擎 UE 作品/);
+  assert.match(page, /我的首个 AI 全流程电影/);
+  assert.match(page, /《一双筷子》 · ORIGINAL FILM/);
   assert.match(page, /Nothing great was ever achieved without enthusiasm\./);
   assert.match(page, /刘涵 · 류한/);
-  assert.equal(video.subarray(4, 8).toString("ascii"), "ftyp");
-  assert.ok(video.length > 1_000_000);
+  for (const video of [personalVideo, societyVideo, natureVideo]) {
+    assert.equal(video.subarray(4, 8).toString("ascii"), "ftyp");
+    assert.ok(video.length > 1_000_000);
+  }
 });
 
 test("the calligraphic Korean headings and contact identity assets are bundled", async () => {
@@ -106,10 +118,13 @@ test("the calligraphic Korean headings and contact identity assets are bundled",
   assert.ok(wechat.length > 10_000 && instagram.length > 10_000 && linktree.length > 10_000);
 });
 
-test("the licensed Sport Version 1 soundtrack is opt-in and credited", async () => {
+test("the licensed Sport Version 1 soundtrack autoplays with a browser-policy fallback", async () => {
   const page = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
 
   assert.match(page, /audio_a4679e250c\.mp3/);
+  assert.match(page, /src=\{soundtrackUrl\} autoPlay loop preload="auto"/);
+  assert.match(page, /resumeAfterInteraction/);
+  assert.match(page, /musicSuppressedRef/);
   assert.match(page, /aria-pressed=\{musicPlaying\}/);
   assert.match(page, /SPORT ON/);
   assert.match(page, /SPORT OFF/);

@@ -2954,6 +2954,7 @@ body {
   visibility: hidden;
   background: #04070f;
   transition: opacity .55s ease, visibility .55s ease;
+  will-change: opacity;
 }
 
 .site-video-layer.is-active {
@@ -2982,6 +2983,19 @@ body {
   opacity: .92;
   filter: saturate(.8) contrast(1.13) brightness(.72);
 }
+
+.site-video-layer[data-world="society"] video {
+  object-position: center;
+  filter: saturate(.86) contrast(1.16) brightness(.66) hue-rotate(-4deg);
+}
+
+.site-video-layer[data-world="nature"] video {
+  object-position: center;
+  filter: saturate(.72) contrast(1.1) brightness(.64) hue-rotate(4deg);
+}
+
+.site-video-layer[data-world="society"] .site-video-credit i { background: #87d7ff; }
+.site-video-layer[data-world="nature"] .site-video-credit i { background: #77f4d2; box-shadow: 0 0 12px #2cbf9a; }
 
 .site-video-credit {
   position: absolute;

@@ -16,6 +16,7 @@ const contentTypes = {
   ".webp": "image/webp",
   ".svg": "image/svg+xml",
   ".json": "application/json; charset=utf-8",
+  ".mp4": "video/mp4",
 };
 
 function clientPath(pathname) {
@@ -40,8 +41,33 @@ const server = createServer(async (request, response) => {
   const requestUrl = new URL(request.url ?? "/", `http://${host}:${port}`);
   const staticAsset = await readStatic(requestUrl.pathname);
   if (staticAsset) {
-    response.writeHead(200, { "Content-Type": staticAsset.type, "Cache-Control": "no-store" });
-    response.end(staticAsset.body);
+    const range = request.headers.range?.match(/^bytes=(\d*)-(\d*)$/);
+    if (range) {
+      const start = range[1] ? Number(range[1]) : 0;
+      const end = range[2] ? Math.min(Number(range[2]), staticAsset.body.length - 1) : staticAsset.body.length - 1;
+      if (start > end || start >= staticAsset.body.length) {
+        response.writeHead(416, { "Content-Range": `bytes */${staticAsset.body.length}` });
+        response.end();
+        return;
+      }
+      const partial = staticAsset.body.subarray(start, end + 1);
+      response.writeHead(206, {
+        "Content-Type": staticAsset.type,
+        "Content-Range": `bytes ${start}-${end}/${staticAsset.body.length}`,
+        "Content-Length": partial.length,
+        "Accept-Ranges": "bytes",
+        "Cache-Control": "no-store",
+      });
+      response.end(request.method === "HEAD" ? undefined : partial);
+      return;
+    }
+    response.writeHead(200, {
+      "Content-Type": staticAsset.type,
+      "Content-Length": staticAsset.body.length,
+      "Accept-Ranges": "bytes",
+      "Cache-Control": "no-store",
+    });
+    response.end(request.method === "HEAD" ? undefined : staticAsset.body);
     return;
   }
 
