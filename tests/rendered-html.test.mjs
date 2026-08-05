@@ -94,6 +94,7 @@ test("each world has its own optimized muted video backdrop", async () => {
     assert.equal(video.subarray(4, 8).toString("ascii"), "ftyp");
     assert.ok(video.length > 1_000_000);
   }
+  assert.ok(natureVideo.length < 5_000_000);
 });
 
 test("the calligraphic Korean headings and contact identity assets are bundled", async () => {
