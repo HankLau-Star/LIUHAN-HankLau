@@ -9,6 +9,8 @@ const navItems = [
   { id: "contact", label: "联系方式" },
 ];
 
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+
 const skills = [
   ["三维世界构筑", "Unreal Engine 5 · Houdini · Maya · Nuke"],
   ["AI 生产力", "AI 工具探索 · 产品测评 · 工作流实践"],
@@ -118,7 +120,7 @@ export default function Home() {
         <section className="hero new-hero" id="top">
           <div className="hero-grid" aria-hidden="true" />
           <div className="hero-visual" aria-hidden="true">
-            <img src="/solo-awakening.png" alt="" />
+            <img src={`${basePath}/solo-awakening.png`} alt="" />
             <div className="visual-veil" />
             <div className="energy-rift"><i /><i /><i /></div>
             <div className="energy-motes">
