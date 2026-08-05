@@ -4,7 +4,7 @@ import path from "node:path";
 
 const host = "127.0.0.1";
 const port = Number(process.env.PAGES_PREVIEW_PORT ?? 4174);
-const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "/ascender-portfolio";
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "/LIUHAN-HankLau";
 const outputRoot = path.resolve("out");
 const contentTypes = {
   ".css": "text/css; charset=utf-8",
