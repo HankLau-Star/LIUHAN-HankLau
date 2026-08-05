@@ -12,8 +12,8 @@ const navItems = [
 
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 const hostedApi = "https://ascender-archive-01.valid-gnat-7482.chatgpt.site";
-const soundtrackUrl = "https://cdn.pixabay.com/audio/2025/09/02/audio_26880c8188.mp3";
-const soundtrackPage = "https://pixabay.com/music/upbeat-brazilian-phonk-398294/";
+const soundtrackUrl = "https://cdn.pixabay.com/audio/2025/09/27/audio_ee5ecf71ba.mp3";
+const soundtrackPage = "https://pixabay.com/music/upbeat-phonk-montagem-411215/";
 
 function publicContentEndpoint(): string {
   if (typeof window !== "undefined" && window.location.hostname.endsWith("github.io")) {
@@ -144,8 +144,8 @@ export default function Home() {
           ))}
         </nav>
         <div className="header-actions">
-          <button className={musicPlaying ? "music-toggle is-playing" : "music-toggle"} type="button" aria-label={musicPlaying ? "暂停背景音乐" : "播放背景音乐"} aria-pressed={musicPlaying} onClick={toggleSoundtrack} title="Brazilian Phonk — DELOSound / Pixabay">
-            <span aria-hidden="true"><i /><i /><i /><i /></span><b>{musicPlaying ? "PHONK ON" : "PHONK OFF"}</b>
+          <button className={musicPlaying ? "music-toggle is-playing" : "music-toggle"} type="button" aria-label={musicPlaying ? "暂停背景音乐" : "播放背景音乐"} aria-pressed={musicPlaying} onClick={toggleSoundtrack} title="PHONK MONTAGEM — kawaiiwork / Pixabay">
+            <span aria-hidden="true"><i /><i /><i /><i /></span><b>{musicPlaying ? "REMIX ON" : "REMIX OFF"}</b>
           </button>
           <span className="status-pill"><i /> {content.brand.status}</span>
           <button className="menu-button" type="button" aria-label="切换导航菜单" aria-expanded={menuOpen} onClick={() => setMenuOpen(!menuOpen)}><span /><span /></button>
@@ -325,7 +325,7 @@ export default function Home() {
       <footer className="site-footer">
         <div className="brand footer-brand"><span className="brand-mark">HL</span><span>{content.brand.name}<small>{content.brand.subtitle}</small></span></div>
         <p>PERSON · SOCIETY · NATURE<br /><span>向内生长，向外创造。</span></p>
-        <div><span>© 2026</span><a href={soundtrackPage} target="_blank" rel="noreferrer" className="music-credit">MUSIC · DELOSOUND / PIXABAY</a><a href="/admin" className="admin-entry">CONTENT CONSOLE</a><a href="#top">BACK TO TOP ↑</a></div>
+        <div><span>© 2026</span><a href={soundtrackPage} target="_blank" rel="noreferrer" className="music-credit">MUSIC · KAWAIIWORK / PIXABAY</a><a href="/admin" className="admin-entry">CONTENT CONSOLE</a><a href="#top">BACK TO TOP ↑</a></div>
       </footer>
     </>
   );

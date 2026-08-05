@@ -106,12 +106,12 @@ test("the calligraphic Korean headings and contact identity assets are bundled",
   assert.ok(wechat.length > 10_000 && instagram.length > 10_000 && linktree.length > 10_000);
 });
 
-test("the licensed phonk soundtrack is opt-in and credited", async () => {
+test("the licensed viral remix soundtrack is opt-in and credited", async () => {
   const page = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
 
-  assert.match(page, /audio_26880c8188\.mp3/);
+  assert.match(page, /audio_ee5ecf71ba\.mp3/);
   assert.match(page, /aria-pressed=\{musicPlaying\}/);
-  assert.match(page, /PHONK ON/);
-  assert.match(page, /PHONK OFF/);
-  assert.match(page, /DELOSOUND \/ PIXABAY/);
+  assert.match(page, /REMIX ON/);
+  assert.match(page, /REMIX OFF/);
+  assert.match(page, /KAWAIIWORK \/ PIXABAY/);
 });
