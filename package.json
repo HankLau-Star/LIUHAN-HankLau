@@ -10,6 +10,7 @@
     "build": "vinext build",
     "start": "vinext start",
     "preview": "node scripts/preview-server.mjs",
+    "preview:pages": "node scripts/pages-preview.mjs",
     "test": "pnpm run build && node --test --test-isolation=none tests/rendered-html.test.mjs",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
     "db:generate": "drizzle-kit generate"

@@ -27,6 +27,11 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - name: Prepare static-only route tree
+        run: |
+          mv app/api _pages-api
+          mv app/admin _pages-admin
+      - uses: actions/configure-pages@v5
       - name: Build static site
         env:
           GITHUB_PAGES: "true"

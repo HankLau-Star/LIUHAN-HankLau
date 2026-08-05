@@ -12,6 +12,7 @@ const navItems = [
 
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 const hostedApi = "https://ascender-archive-01.valid-gnat-7482.chatgpt.site";
+const adminHref = basePath ? `${hostedApi}/admin` : "/admin";
 const soundtrackUrl = "https://cdn.pixabay.com/download/audio/2026/07/13/audio_a4679e250c.mp3";
 const soundtrackPage = "https://pixabay.com/music/future-bass-sport-version-1-mortals-566579/";
 
@@ -393,7 +394,7 @@ export default function Home() {
       <footer className="site-footer">
         <div className="brand footer-brand"><span className="brand-mark">HL</span><span>{content.brand.name}<small>{content.brand.subtitle}</small></span></div>
         <p>PERSON · SOCIETY · NATURE<br /><span>向内生长，向外创造。</span></p>
-        <div><span>© 2026</span><a href={soundtrackPage} target="_blank" rel="noreferrer" className="music-credit">MUSIC · BOMBINSOUND / PIXABAY</a><a href="/admin" className="admin-entry">CONTENT CONSOLE</a><a href="#top">BACK TO TOP ↑</a></div>
+        <div><span>© 2026</span><a href={soundtrackPage} target="_blank" rel="noreferrer" className="music-credit">MUSIC · BOMBINSOUND / PIXABAY</a><a href={adminHref} className="admin-entry">CONTENT CONSOLE</a><a href="#top">BACK TO TOP ↑</a></div>
       </footer>
     </>
   );

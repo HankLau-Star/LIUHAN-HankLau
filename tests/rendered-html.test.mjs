@@ -131,3 +131,16 @@ test("the licensed Sport Version 1 soundtrack autoplays with a browser-policy fa
   assert.match(page, /SPORT OFF/);
   assert.match(page, /BOMBINSOUND \/ PIXABAY/);
 });
+
+test("the GitHub Pages workflow exports only static routes and keeps the hosted content console", async () => {
+  const [page, workflow] = await Promise.all([
+    readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../.github/workflows/deploy-pages.yml", import.meta.url), "utf8"),
+  ]);
+
+  assert.match(page, /const adminHref = basePath \? `\$\{hostedApi\}\/admin` : "\/admin"/);
+  assert.match(workflow, /mv app\/api _pages-api/);
+  assert.match(workflow, /mv app\/admin _pages-admin/);
+  assert.match(workflow, /actions\/configure-pages@v5/);
+  assert.match(workflow, /NEXT_PUBLIC_BASE_PATH/);
+});
