@@ -181,11 +181,14 @@ test("the GitHub Pages workflow exports only static routes and keeps the hosted 
   assert.match(workflow, /NEXT_PUBLIC_BASE_PATH/);
 });
 
-test("owner-controlled Cloudflare hosting uses free D1 and supports optional R2 media uploads", async () => {
-  const [page, adminAuth, accessVerifier, uploadRoute, mediaRoute, wranglerSource, hostingSource, migration] = await Promise.all([
+test("owner-controlled Cloudflare hosting uses free D1, owner-only GitHub OAuth, and optional R2", async () => {
+  const [page, adminAuth, accessVerifier, githubOAuth, githubStart, githubCallback, uploadRoute, mediaRoute, wranglerSource, hostingSource, migration] = await Promise.all([
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../lib/admin-auth.ts", import.meta.url), "utf8"),
     readFile(new URL("../lib/cloudflare-access.ts", import.meta.url), "utf8"),
+    readFile(new URL("../lib/github-oauth.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/api/auth/github/start/route.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/api/auth/github/callback/route.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/api/admin/media/route.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/media/[...key]/route.ts", import.meta.url), "utf8"),
     readFile(new URL("../wrangler.jsonc", import.meta.url), "utf8"),
@@ -199,8 +202,21 @@ test("owner-controlled Cloudflare hosting uses free D1 and supports optional R2 
   assert.match(page, /work-card-media/);
   assert.match(adminAuth, /cloudflare-access/);
   assert.match(adminAuth, /verifiedCloudflareAccessEmail/);
+  assert.match(adminAuth, /isGitHubOAuthMode/);
+  assert.match(adminAuth, /verifiedGitHubSession/);
   assert.match(accessVerifier, /cf-access-jwt-assertion/);
   assert.match(accessVerifier, /crypto\.subtle\.verify/);
+  assert.match(githubOAuth, /hl_github_oauth_state/);
+  assert.match(githubOAuth, /crypto\.subtle\.sign\("HMAC"/);
+  assert.match(githubOAuth, /crypto\.subtle\.verify\(\s*"HMAC"/);
+  assert.match(githubOAuth, /configuredAdminLogins\(\)\.has/);
+  assert.match(githubOAuth, /scope", "read:user"/);
+  assert.match(githubOAuth, /SameSite=Lax/);
+  assert.match(githubOAuth, /HttpOnly; Secure/);
+  assert.match(githubOAuth, /https:\/\/github\.com\/login\/oauth\/access_token/);
+  assert.match(githubOAuth, /https:\/\/api\.github\.com\/user/);
+  assert.match(githubStart, /beginGitHubOAuth/);
+  assert.match(githubCallback, /finishGitHubOAuth/);
   assert.match(uploadRoute, /MAX_UPLOAD_BYTES/);
   assert.match(uploadRoute, /bucket\.put/);
   assert.match(mediaRoute, /bucket\.get/);
