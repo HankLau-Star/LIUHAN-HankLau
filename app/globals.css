@@ -3638,3 +3638,107 @@ body {
   .new-hero .hero-actions { margin-top: 13px; }
   .new-hero .world-map { right: 16px; bottom: 16px; left: auto; width: 36vw; }
 }
+
+/* Final motion pass: restrained, GPU-friendly depth for every chapter. */
+.section-heading,
+.chapter-intro {
+  position: relative;
+}
+
+.section-heading::after,
+.chapter-intro::after {
+  position: absolute;
+  right: 0;
+  bottom: -19px;
+  left: 0;
+  height: 1px;
+  content: "";
+  opacity: .65;
+  transform: scaleX(.18);
+  transform-origin: left;
+  background: linear-gradient(90deg, rgba(94, 200, 255, .82), rgba(80, 120, 255, .18) 42%, transparent 84%);
+  box-shadow: 0 0 16px rgba(65, 160, 255, .16);
+  transition: transform 1.1s cubic-bezier(.2,.8,.2,1), opacity .6s ease;
+}
+
+.section-heading.is-visible::after,
+.chapter-block.is-visible .chapter-intro::after {
+  opacity: 1;
+  transform: scaleX(1);
+}
+
+.glass-card,
+.input-grid > article,
+.output-grid > article,
+.experience-strip > article,
+.work-card,
+.impact-dashboard > article,
+.platform-grid > article,
+.nature-grid > article,
+.contact-qr-card {
+  --entry-delay: 0ms;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .reveal.is-visible .strength-grid > *,
+  .reveal.is-visible .input-grid > *,
+  .reveal.is-visible .output-grid > *,
+  .reveal.is-visible .experience-strip > *,
+  .selected-works.reveal.is-visible .work-card,
+  .impact-dashboard.reveal.is-visible > *,
+  .platform-console.reveal.is-visible .platform-grid > *,
+  .nature-grid > .reveal.is-visible,
+  .contact-panel.reveal.is-visible .contact-profile-grid > * {
+    animation: chapter-item-in .72s cubic-bezier(.2,.8,.2,1) both;
+    animation-delay: var(--entry-delay);
+  }
+
+  :is(.strength-grid, .input-grid, .output-grid, .experience-strip, .works-grid, .impact-dashboard, .platform-grid, .nature-grid, .contact-profile-grid) > :nth-child(2) { --entry-delay: 70ms; }
+  :is(.strength-grid, .input-grid, .output-grid, .experience-strip, .works-grid, .impact-dashboard, .platform-grid, .nature-grid, .contact-profile-grid) > :nth-child(3) { --entry-delay: 130ms; }
+  :is(.strength-grid, .input-grid, .output-grid, .experience-strip, .works-grid, .impact-dashboard, .platform-grid, .nature-grid, .contact-profile-grid) > :nth-child(4) { --entry-delay: 190ms; }
+  :is(.strength-grid, .input-grid, .output-grid, .experience-strip, .works-grid, .impact-dashboard, .platform-grid, .nature-grid, .contact-profile-grid) > :nth-child(5) { --entry-delay: 250ms; }
+  :is(.strength-grid, .input-grid, .output-grid, .experience-strip, .works-grid, .impact-dashboard, .platform-grid, .nature-grid, .contact-profile-grid) > :nth-child(n+6) { --entry-delay: 310ms; }
+}
+
+@keyframes chapter-item-in {
+  from { opacity: 0; transform: translate3d(0, 22px, 0) scale(.988); filter: saturate(.72); }
+  to { opacity: 1; transform: translate3d(0, 0, 0) scale(1); filter: saturate(1); }
+}
+
+@media (max-width: 920px) {
+  .main-nav {
+    z-index: 3;
+    background: linear-gradient(155deg, rgba(8, 15, 29, .985), rgba(3, 7, 15, .985));
+    box-shadow: 0 24px 70px rgba(0,0,0,.58), inset 0 1px 0 rgba(134, 195, 255, .06);
+  }
+
+  .main-nav a {
+    color: #d2ddec;
+    font-weight: 500;
+    letter-spacing: .04em;
+  }
+
+  .main-nav a:hover,
+  .main-nav a.is-active { color: #eef7ff; }
+}
+
+@media (max-width: 680px) {
+  .hero-stagger { animation-duration: .58s; }
+  .new-hero h1 { font-size: clamp(2.95rem, 14.25vw, 4.55rem); }
+  .section-heading::after,
+  .chapter-intro::after { bottom: -13px; }
+
+  .button:active,
+  .world-map a:active,
+  .work-card:active,
+  .contact-qr-card:active { transform: scale(.985); }
+}
+
+@media (max-width: 390px) {
+  .new-hero h1 { font-size: clamp(2.76rem, 14vw, 3.5rem); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .section-heading::after,
+  .chapter-intro::after { opacity: .7; transform: scaleX(1); transition: none; }
+}
