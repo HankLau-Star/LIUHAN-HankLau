@@ -176,6 +176,7 @@ test("the GitHub Pages workflow exports only static routes and keeps the hosted 
   assert.match(page, /NEXT_PUBLIC_CONTENT_API/);
   assert.match(workflow, /mv app\/api _pages-api/);
   assert.match(workflow, /mv app\/admin _pages-admin/);
+  assert.match(workflow, /mv app\/media _pages-media/);
   assert.match(workflow, /actions\/configure-pages@v5/);
   assert.match(workflow, /NEXT_PUBLIC_BASE_PATH/);
 });
