@@ -12,6 +12,7 @@ test("default content contains the complete portfolio structure", () => {
   assert.equal(defaultSiteContent.works.length, 5);
   assert.ok(defaultSiteContent.works.slice(0, 3).every((item) => item.url.startsWith("https://www.zhihu.com/pin/")));
   assert.ok(defaultSiteContent.works.slice(3).every((item) => item.url.startsWith("https://mp.weixin.qq.com/s/")));
+  assert.ok(defaultSiteContent.works.every((item) => item.mediaUrl === "" && item.mediaType === ""));
   assert.equal(defaultSiteContent.brand.name, "LIUHAN");
   assert.match(defaultSiteContent.brand.subtitle, /HankLau · HL/);
   assert.equal(defaultSiteContent.metrics.find((item) => item.label === "PUBLIC REACH")?.value, "38K+");
@@ -28,12 +29,14 @@ test("content normalization blocks unsafe links and limits collections", () => {
   const content = normalizeSiteContent({
     ...defaultSiteContent,
     outputs: Array.from({ length: 30 }, (_, index) => ({ label: `${index}`, title: `输出 ${index}`, body: "测试" })),
-    works: Array.from({ length: 20 }, (_, index) => ({
+    works: Array.from({ length: 40 }, (_, index) => ({
       platform: "TEST",
       metric: "100W+",
       title: `作品 ${index}`,
       summary: "测试",
       url: index === 0 ? "javascript:alert(1)" : "https://example.com/work",
+      mediaUrl: index === 0 ? "javascript:alert(2)" : "https://media.example.com/work.jpg",
+      mediaType: "image",
     })),
     contact: {
       ...defaultSiteContent.contact,
@@ -43,8 +46,9 @@ test("content normalization blocks unsafe links and limits collections", () => {
   });
 
   assert.equal(content.outputs.length, 18);
-  assert.equal(content.works.length, 12);
+  assert.equal(content.works.length, 30);
   assert.equal(content.works[0].url, "");
+  assert.equal(content.works[0].mediaUrl, "");
   assert.equal(content.works[1].url, "https://example.com/work");
   assert.equal(content.contact.emailUrl, "mailto:hello@example.com");
   assert.equal(content.contact.socialUrl, "");
@@ -63,7 +67,7 @@ test("front page and protected admin routes are wired", async () => {
   assert.match(page, /id="works"/);
   assert.match(page, /CONTENT CONSOLE/);
   assert.match(page, /publicContentEndpoint/);
-  assert.match(adminPage, /requireChatGPTUser/);
+  assert.match(adminPage, /requireAdminUser/);
   assert.match(publicApi, /Access-Control-Allow-Origin/);
   assert.match(adminApi, /getAuthorizedAdmin/);
 });
@@ -132,15 +136,78 @@ test("the licensed Sport Version 1 soundtrack autoplays with a browser-policy fa
   assert.match(page, /BOMBINSOUND \/ PIXABAY/);
 });
 
+test("the phone homepage has an isolated responsive composition", async () => {
+  const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+  const mobile = css.split("/* Phone-only home adaptation: desktop rules above remain unchanged. */")[1] ?? "";
+
+  assert.match(mobile, /@media \(max-width: 680px\)/);
+  assert.match(mobile, /min-height: max\(100svh, 1010px\)/);
+  assert.match(mobile, /object-position: 50% 18%/);
+  assert.match(mobile, /font-size: clamp\(3rem, 15vw, 4\.8rem\)/);
+  assert.match(mobile, /env\(safe-area-inset-top\)/);
+  assert.match(mobile, /@media \(max-width: 390px\)/);
+  assert.match(mobile, /orientation: landscape/);
+});
+
+test("the iPad layout has isolated portrait and landscape compositions", async () => {
+  const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+  const tablet = css.split("/* Touch-tablet adaptation: iPad portrait and landscape, without changing desktop. */")[1]
+    ?.split("/* Phone-only home adaptation: desktop rules above remain unchanged. */")[0] ?? "";
+
+  assert.match(tablet, /min-width: 681px/);
+  assert.match(tablet, /max-width: 1100px/);
+  assert.match(tablet, /orientation: portrait/);
+  assert.match(tablet, /min-width: 921px/);
+  assert.match(tablet, /max-width: 1366px/);
+  assert.match(tablet, /orientation: landscape/);
+  assert.match(tablet, /any-pointer: coarse/);
+  assert.match(tablet, /min-height: max\(100svh, 1160px\)/);
+  assert.match(tablet, /grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/);
+  assert.match(tablet, /min-height: max\(100svh, 820px\)/);
+});
+
 test("the GitHub Pages workflow exports only static routes and keeps the hosted content console", async () => {
   const [page, workflow] = await Promise.all([
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../.github/workflows/deploy-pages.yml", import.meta.url), "utf8"),
   ]);
 
-  assert.match(page, /const adminHref = basePath \? `\$\{hostedApi\}\/admin` : "\/admin"/);
+  assert.match(page, /const adminHref = basePath \? `\$\{contentApiOrigin\}\/admin` : "\/admin"/);
+  assert.match(page, /NEXT_PUBLIC_CONTENT_API/);
   assert.match(workflow, /mv app\/api _pages-api/);
   assert.match(workflow, /mv app\/admin _pages-admin/);
   assert.match(workflow, /actions\/configure-pages@v5/);
   assert.match(workflow, /NEXT_PUBLIC_BASE_PATH/);
+});
+
+test("owner-controlled Cloudflare hosting is wired for Access, D1, R2, and media uploads", async () => {
+  const [page, adminAuth, accessVerifier, uploadRoute, mediaRoute, wranglerSource, hostingSource, migration] = await Promise.all([
+    readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../lib/admin-auth.ts", import.meta.url), "utf8"),
+    readFile(new URL("../lib/cloudflare-access.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/api/admin/media/route.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/media/[...key]/route.ts", import.meta.url), "utf8"),
+    readFile(new URL("../wrangler.jsonc", import.meta.url), "utf8"),
+    readFile(new URL("../.openai/hosting.json", import.meta.url), "utf8"),
+    readFile(new URL("../drizzle/0001_unique_hellion.sql", import.meta.url), "utf8"),
+  ]);
+  const wrangler = JSON.parse(wranglerSource);
+  const hosting = JSON.parse(hostingSource);
+
+  assert.match(page, /NEXT_PUBLIC_CONTENT_API/);
+  assert.match(page, /work-card-media/);
+  assert.match(adminAuth, /cloudflare-access/);
+  assert.match(adminAuth, /verifiedCloudflareAccessEmail/);
+  assert.match(accessVerifier, /cf-access-jwt-assertion/);
+  assert.match(accessVerifier, /crypto\.subtle\.verify/);
+  assert.match(uploadRoute, /MAX_UPLOAD_BYTES/);
+  assert.match(uploadRoute, /bucket\.put/);
+  assert.match(mediaRoute, /bucket\.get/);
+  assert.equal(wrangler.name, "liuhan-hanklau");
+  assert.equal(wrangler.d1_databases[0].binding, "DB");
+  assert.equal(wrangler.r2_buckets[0].binding, "MEDIA");
+  assert.equal(hosting.r2, "MEDIA");
+  assert.match(migration, /CREATE TABLE `media_assets`/);
+  assert.match(migration, /idx_media_assets_created_at/);
+  assert.doesNotMatch(migration, /CREATE TABLE `site_content`/);
 });
