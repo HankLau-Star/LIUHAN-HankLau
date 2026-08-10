@@ -6,11 +6,11 @@
 
 - Worker：`liuhan-hanklau`
 - D1 绑定：`DB`
-- R2 绑定：`MEDIA`
+- R2 绑定：`MEDIA`（可选；只有网站所有者主动开通 R2 订阅后才配置）
 - 静态资产绑定：`ASSETS`
 - 配置源：根目录 `wrangler.jsonc`
 
-首次导入 GitHub 仓库时，可让 Cloudflare 根据绑定配置创建资源；如果控制台要求手动创建，资源名可使用 `liuhan-hanklau-db` 和 `liuhan-hanklau-media`，然后把对应 ID/名称写入 `wrangler.jsonc`。数据库 ID 和桶名称不是密码，可以提交；API 令牌不可以提交。
+首次导入 GitHub 仓库时，可让 Cloudflare 根据绑定配置创建免费的 D1 数据库。默认部署不声明 R2，避免在未经网站所有者明确同意时开通按量计费订阅；文字、数值、作品资料和外部作品链接全部可以只用 D1 正常管理。以后如需直接上传图片、视频、音频或 PDF，由网站所有者先在 Cloudflare 开通 R2，再创建 `liuhan-hanklau-media` 并把 `MEDIA` 绑定加入 `wrangler.jsonc`。数据库 ID 和桶名称不是密码，可以提交；API 令牌不可以提交。
 
 构建命令：
 
@@ -78,6 +78,6 @@ CONTENT_API_URL=https://<Cloudflare 主站域名>
 
 - 代码：从 GitHub 克隆并切到最近正常提交。
 - 内容：从 D1 备份或 `/api/site` JSON 恢复。
-- 素材：从 R2 与原始文件备份恢复。
+- 素材：已开通 R2 时从 R2 与原始文件备份恢复；未开通时从作品外链和原始文件备份恢复。
 - 权限：在 Access 中撤销旧邮箱/会话并重新配置允许邮箱。
 - 域名：Worker 默认域名可独立工作；自定义域名应在 Cloudflare DNS 中维护。
