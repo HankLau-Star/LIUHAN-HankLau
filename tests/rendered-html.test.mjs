@@ -180,7 +180,7 @@ test("the GitHub Pages workflow exports only static routes and keeps the hosted 
   assert.match(workflow, /NEXT_PUBLIC_BASE_PATH/);
 });
 
-test("owner-controlled Cloudflare hosting is wired for Access, D1, R2, and media uploads", async () => {
+test("owner-controlled Cloudflare hosting uses free D1 and supports optional R2 media uploads", async () => {
   const [page, adminAuth, accessVerifier, uploadRoute, mediaRoute, wranglerSource, hostingSource, migration] = await Promise.all([
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../lib/admin-auth.ts", import.meta.url), "utf8"),
@@ -205,8 +205,9 @@ test("owner-controlled Cloudflare hosting is wired for Access, D1, R2, and media
   assert.match(mediaRoute, /bucket\.get/);
   assert.equal(wrangler.name, "liuhan-hanklau");
   assert.equal(wrangler.d1_databases[0].binding, "DB");
-  assert.equal(wrangler.r2_buckets[0].binding, "MEDIA");
+  assert.equal(wrangler.r2_buckets, undefined);
   assert.equal(hosting.r2, "MEDIA");
+  assert.match(uploadRoute, /mediaBindingUnavailable/);
   assert.match(migration, /CREATE TABLE `media_assets`/);
   assert.match(migration, /idx_media_assets_created_at/);
   assert.doesNotMatch(migration, /CREATE TABLE `site_content`/);
