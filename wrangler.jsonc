@@ -11,6 +11,8 @@
   "d1_databases": [
     {
       "binding": "DB",
+      "database_name": "liuhan-hanklau-db",
+      "database_id": "a48bfc72-7465-4fc7-8de0-5c03b8d43489",
       "migrations_dir": "drizzle"
     }
   ],
