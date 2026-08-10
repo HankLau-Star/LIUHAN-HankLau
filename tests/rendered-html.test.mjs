@@ -205,6 +205,8 @@ test("owner-controlled Cloudflare hosting uses free D1 and supports optional R2 
   assert.match(mediaRoute, /bucket\.get/);
   assert.equal(wrangler.name, "liuhan-hanklau");
   assert.equal(wrangler.d1_databases[0].binding, "DB");
+  assert.equal(wrangler.d1_databases[0].database_name, "liuhan-hanklau-db");
+  assert.match(wrangler.d1_databases[0].database_id, /^[0-9a-f-]{36}$/);
   assert.equal(wrangler.r2_buckets, undefined);
   assert.equal(hosting.r2, "MEDIA");
   assert.match(uploadRoute, /mediaBindingUnavailable/);
