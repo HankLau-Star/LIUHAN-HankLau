@@ -13,7 +13,7 @@ const collections: CollectionConfig[] = [
   { key: "inputs", title: "输入", description: "学习、观察与生活输入。", fields: [{ key: "label", label: "分类" }, { key: "title", label: "标题" }, { key: "body", label: "正文", kind: "textarea" }], blank: { label: "新输入", title: "输入标题", body: "补充说明" } },
   { key: "outputs", title: "输出", description: "实践、社群、自媒体、书籍、创业与公共影响。", fields: [{ key: "label", label: "编号" }, { key: "title", label: "标题" }, { key: "body", label: "正文", kind: "textarea" }], blank: { label: "00", title: "新输出", body: "补充说明" } },
   { key: "experiences", title: "实践经历", description: "公司、角色与经历说明。", fields: [{ key: "company", label: "机构" }, { key: "role", label: "角色" }, { key: "body", label: "经历", kind: "textarea" }], blank: { company: "新机构", role: "角色", body: "经历说明" } },
-  { key: "works", title: "代表作品", description: "管理个人模块中的作品卡片、内容摘录、阅读成绩与原文链接。", fields: [{ key: "platform", label: "平台与类型" }, { key: "metric", label: "代表成绩" }, { key: "title", label: "作品标题" }, { key: "summary", label: "内容摘录或说明", kind: "textarea" }, { key: "url", label: "原文链接", kind: "url" }], blank: { platform: "ORIGINAL WORK", metric: "代表成绩", title: "新作品", summary: "补充内容摘录", url: "" } },
+  { key: "works", title: "代表作品", description: "管理个人模块中的作品卡片、内容摘录、阅读成绩、原文链接与作品素材。", fields: [{ key: "platform", label: "平台与类型" }, { key: "metric", label: "代表成绩" }, { key: "title", label: "作品标题" }, { key: "summary", label: "内容摘录或说明", kind: "textarea" }, { key: "url", label: "原文链接", kind: "url" }, { key: "mediaUrl", label: "作品图片或视频链接", kind: "url" }, { key: "mediaType", label: "素材类型（image / video）" }], blank: { platform: "ORIGINAL WORK", metric: "代表成绩", title: "新作品", summary: "补充内容摘录", url: "", mediaUrl: "", mediaType: "" } },
   { key: "metrics", title: "社会影响力数值", description: "首页数据看板中的核心数值。", fields: [{ key: "label", label: "英文标签" }, { key: "value", label: "数值" }, { key: "detail", label: "说明" }], blank: { label: "NEW METRIC", value: "0", detail: "数据说明" } },
   { key: "platforms", title: "平台矩阵", description: "各内容平台的数据与代表成绩。", fields: [{ key: "name", label: "平台" }, { key: "value", label: "粉丝数" }, { key: "detail", label: "代表成绩" }], blank: { name: "新平台", value: "0", detail: "补充成绩" } },
   { key: "natureItems", title: "自然世界", description: "身体、运动、感知与生活节律。", fields: [{ key: "label", label: "英文标签" }, { key: "title", label: "标题" }, { key: "body", label: "正文", kind: "textarea" }], blank: { label: "LIFE", title: "新条目", body: "补充说明" } },
@@ -26,6 +26,7 @@ export default function AdminDashboard({ displayName, email, signOutPath }: { di
   const [activeTab, setActiveTab] = useState<"overview" | CollectionKey>("overview");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploadingWork, setUploadingWork] = useState<number | null>(null);
   const [message, setMessage] = useState("正在读取网站内容…");
   const [revision, setRevision] = useState(0);
 
@@ -106,6 +107,25 @@ export default function AdminDashboard({ displayName, email, signOutPath }: { di
     }
   }
 
+  async function uploadWorkMedia(index: number, file: File) {
+    setUploadingWork(index);
+    setMessage(`正在上传作品素材：${file.name}`);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const response = await fetch("/api/admin/media", { method: "POST", body: formData });
+      const payload = await response.json();
+      if (!response.ok || !payload.asset?.url) throw new Error(payload.error || "上传失败");
+      updateCollection("works", index, "mediaUrl", payload.asset.url);
+      updateCollection("works", index, "mediaType", payload.asset.mediaType || "image");
+      setMessage("素材上传成功，请点击“保存全部修改”完成作品更新");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "上传失败，请稍后重试");
+    } finally {
+      setUploadingWork(null);
+    }
+  }
+
   return (
     <main className="admin-shell">
       <aside className="admin-sidebar">
@@ -165,6 +185,21 @@ export default function AdminDashboard({ displayName, email, signOutPath }: { di
               {(content[currentCollection.key] as unknown as Array<Record<string, string | string[]>>).map((row, index) => (
                 <article className="admin-list-item" key={`${currentCollection.key}-${index}`}>
                   <header><span>{String(index + 1).padStart(2, "0")}</span><div><button onClick={() => moveCollectionItem(currentCollection.key, index, -1)} aria-label="上移">↑</button><button onClick={() => moveCollectionItem(currentCollection.key, index, 1)} aria-label="下移">↓</button><button className="is-danger" onClick={() => removeCollectionItem(currentCollection.key, index)}>删除</button></div></header>
+                  {currentCollection.key === "works" ? (
+                    <label className="admin-upload">
+                      <span>{uploadingWork === index ? "正在上传…" : "上传图片、视频、音频或 PDF（最大 50MB）"}</span>
+                      <input
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,audio/mpeg,audio/wav,application/pdf"
+                        disabled={uploadingWork !== null}
+                        onChange={(event) => {
+                          const file = event.target.files?.[0];
+                          if (file) void uploadWorkMedia(index, file);
+                          event.currentTarget.value = "";
+                        }}
+                      />
+                    </label>
+                  ) : null}
                   <div className="admin-form-grid">{currentCollection.fields.map((field) => (
                     <TextField key={field.key} label={field.label} multiline={field.kind === "textarea"} value={String(row[field.key] ?? "")} onChange={(value) => updateCollection(currentCollection.key, index, field.key, value)} />
                   ))}</div>
