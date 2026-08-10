@@ -11,15 +11,13 @@ const navItems = [
 ];
 
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
-const hostedApi = "https://ascender-archive-01.valid-gnat-7482.chatgpt.site";
-const adminHref = basePath ? `${hostedApi}/admin` : "/admin";
+const contentApiOrigin = (process.env.NEXT_PUBLIC_CONTENT_API ?? "https://ascender-archive-01.valid-gnat-7482.chatgpt.site").replace(/\/$/, "");
+const adminHref = basePath ? `${contentApiOrigin}/admin` : "/admin";
 const soundtrackUrl = "https://cdn.pixabay.com/download/audio/2026/07/13/audio_a4679e250c.mp3";
 const soundtrackPage = "https://pixabay.com/music/future-bass-sport-version-1-mortals-566579/";
 
 function publicContentEndpoint(): string {
-  if (typeof window !== "undefined" && window.location.hostname.endsWith("github.io")) {
-    return `${hostedApi}/api/site`;
-  }
+  if (basePath) return `${contentApiOrigin}/api/site`;
   return "/api/site";
 }
 
@@ -300,6 +298,13 @@ export default function Home() {
                 const isWechat = work.platform.startsWith("WECHAT");
                 const cardContent = (
                   <>
+                    {work.mediaUrl && (work.mediaType === "image" || work.mediaType === "video") ? (
+                      <div className={`work-card-media is-${work.mediaType}`} aria-hidden="true">
+                        {work.mediaType === "video"
+                          ? <video src={work.mediaUrl} muted loop playsInline autoPlay preload="metadata" />
+                          : <img src={work.mediaUrl} alt="" loading="lazy" />}
+                      </div>
+                    ) : null}
                     <div className="work-card-top"><span>{work.platform}</span><strong>{work.metric}</strong></div>
                     <span className="work-number">{String(index + 1).padStart(2, "0")}</span>
                     <h3>{work.title}</h3>
@@ -307,7 +312,8 @@ export default function Home() {
                     <div className="work-card-foot"><span>LIUHAN · ORIGINAL</span><b>阅读全文 ↗</b></div>
                   </>
                 );
-                return <a className="work-card" href={work.url} target="_blank" rel="noreferrer" key={`${work.title}-${index}`} aria-label={`阅读原创作品：${work.title}`}>{cardContent}</a>;
+                const workHref = work.url || work.mediaUrl || "#works";
+                return <a className="work-card" href={workHref} target={workHref.startsWith("http") ? "_blank" : undefined} rel={workHref.startsWith("http") ? "noreferrer" : undefined} key={`${work.title}-${index}`} aria-label={`查看原创作品：${work.title}`}>{cardContent}</a>;
               })}
             </div>
           </div>
