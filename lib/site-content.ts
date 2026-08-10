@@ -33,6 +33,8 @@ export type WorkItem = {
   title: string;
   summary: string;
   url: string;
+  mediaUrl: string;
+  mediaType: string;
 };
 
 export type SiteContent = {
@@ -134,6 +136,8 @@ export const defaultSiteContent: SiteContent = {
       title: "坚持这几个事情，2个月后人生重启开挂",
       summary: "自律不是目的，而是手段。",
       url: "https://www.zhihu.com/pin/2061387114298848969?native=1&scene=share&share_code=FiV6BGTvk0WW&utm_psn=2068366396443170552",
+      mediaUrl: "",
+      mediaType: "",
     },
     {
       platform: "ZHIHU · AI OBSERVATION",
@@ -141,6 +145,8 @@ export const defaultSiteContent: SiteContent = {
       title: "DeepSeek 团队主要成员毕业大学",
       summary: "高学历、高素质人才的汇聚，让 DeepSeek 在人工智能领域不断突破。",
       url: "https://www.zhihu.com/pin/1890776233031235495?native=1&scene=share&share_code=pvao0IqC6Ax&utm_psn=2068366482757662346",
+      mediaUrl: "",
+      mediaType: "",
     },
     {
       platform: "ZHIHU · INSIGHT",
@@ -148,6 +154,8 @@ export const defaultSiteContent: SiteContent = {
       title: "什么样的人活得最幸福？",
       summary: "幸福从来不是得到更多，而是消耗更少。",
       url: "https://www.zhihu.com/pin/2063325186527704695?native=1&scene=share&share_code=JoZyCNVxsD5W&utm_psn=2068366594774917974",
+      mediaUrl: "",
+      mediaType: "",
     },
     {
       platform: "WECHAT · ORIGINAL",
@@ -155,6 +163,8 @@ export const defaultSiteContent: SiteContent = {
       title: "公众号高赞原创 · 01",
       summary: "第一篇公众号 10W+ 高赞原创内容，点击卡片进入公众号阅读全文。",
       url: "https://mp.weixin.qq.com/s/oYxU13oc-7GOdB3NgHZxeQ",
+      mediaUrl: "",
+      mediaType: "",
     },
     {
       platform: "WECHAT · ORIGINAL",
@@ -162,6 +172,8 @@ export const defaultSiteContent: SiteContent = {
       title: "公众号高赞原创 · 02",
       summary: "第二篇公众号 10W+ 高赞原创内容，点击卡片进入公众号阅读全文。",
       url: "https://mp.weixin.qq.com/s/sIMBxdjq2zfMlHgy4UjRWQ",
+      mediaUrl: "",
+      mediaType: "",
     },
   ],
   societySummary: "通过内容、社群与协作进入更大的关系网络，让个人输出在真实世界中产生回声。",
@@ -261,7 +273,7 @@ export function normalizeSiteContent(value: unknown): SiteContent {
     outputs: cleanList(source.outputs, defaultSiteContent.outputs, 18),
     experiences: cleanList(source.experiences, defaultSiteContent.experiences, 18),
     worksIntro: cleanText(source.worksIntro, defaultSiteContent.worksIntro),
-    works: cleanList(source.works, defaultSiteContent.works, 12, ["url"]),
+    works: cleanList(source.works, defaultSiteContent.works, 30, ["url", "mediaUrl"]),
     societySummary: cleanText(source.societySummary, defaultSiteContent.societySummary),
     metrics: cleanList(source.metrics, defaultSiteContent.metrics, 8),
     platforms: cleanList(source.platforms, defaultSiteContent.platforms, 18),

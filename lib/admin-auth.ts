@@ -1,4 +1,13 @@
-import { getChatGPTUser, type ChatGPTUser } from "../app/chatgpt-auth";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
+import { chatGPTSignInPath, chatGPTSignOutPath, getChatGPTUser } from "../app/chatgpt-auth";
+import { verifiedCloudflareAccessEmail } from "./cloudflare-access";
+
+export type AdminUser = {
+  displayName: string;
+  email: string;
+  provider: "chatgpt" | "cloudflare-access";
+};
 
 function configuredAdminEmails(): Set<string> {
   return new Set(
@@ -13,8 +22,35 @@ export function isAdminEmail(email: string): boolean {
   return configuredAdminEmails().has(email.trim().toLowerCase());
 }
 
-export async function getAuthorizedAdmin(): Promise<ChatGPTUser | null> {
+export function isCloudflareAccessMode(): boolean {
+  return process.env.AUTH_PROVIDER === "cloudflare-access";
+}
+
+export async function getAdminUser(): Promise<AdminUser | null> {
+  if (isCloudflareAccessMode()) {
+    const requestHeaders = await headers();
+    const email = await verifiedCloudflareAccessEmail(requestHeaders);
+    return email
+      ? { displayName: email.split("@")[0] || email, email, provider: "cloudflare-access" }
+      : null;
+  }
+
   const user = await getChatGPTUser();
+  return user ? { displayName: user.displayName, email: user.email, provider: "chatgpt" } : null;
+}
+
+export async function requireAdminUser(returnTo: string): Promise<AdminUser | null> {
+  const user = await getAdminUser();
+  if (user || isCloudflareAccessMode()) return user;
+  redirect(chatGPTSignInPath(returnTo));
+}
+
+export function adminSignOutPath(user: AdminUser, returnTo = "/"): string {
+  return user.provider === "cloudflare-access" ? "/cdn-cgi/access/logout" : chatGPTSignOutPath(returnTo);
+}
+
+export async function getAuthorizedAdmin(): Promise<AdminUser | null> {
+  const user = await getAdminUser();
   return user && isAdminEmail(user.email) ? user : null;
 }
 
