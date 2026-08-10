@@ -13,7 +13,9 @@
     "preview:pages": "node scripts/pages-preview.mjs",
     "test": "pnpm run build && node --test --test-isolation=none tests/rendered-html.test.mjs",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
-    "db:generate": "drizzle-kit generate"
+    "db:generate": "drizzle-kit generate",
+    "cloudflare:migrate": "wrangler d1 migrations apply DB --remote",
+    "cloudflare:deploy": "wrangler deploy"
   },
   "dependencies": {
     "drizzle-orm": "0.45.2",
