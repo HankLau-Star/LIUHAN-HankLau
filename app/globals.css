@@ -3705,6 +3705,11 @@ body {
   to { opacity: 1; transform: translate3d(0, 0, 0) scale(1); filter: saturate(1); }
 }
 
+.new-hero h1 {
+  max-width: none;
+  white-space: nowrap;
+}
+
 @media (max-width: 920px) {
   .main-nav {
     z-index: 3;
