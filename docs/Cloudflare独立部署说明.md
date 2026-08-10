@@ -36,23 +36,30 @@ pnpm cloudflare:migrate
 
 此命令应用 `drizzle/` 中尚未执行的迁移，创建 `site_content` 与 `media_assets`。再次运行只会应用新增迁移。
 
-## 3. Cloudflare Access
+## 3. GitHub OAuth 后台登录（默认免费方案）
 
-在 Zero Trust 中启用 One-time PIN 身份源，并为同一 Worker 域名建立两条自托管应用路径：
-
-1. `/admin*`
-2. `/api/admin/*`
-
-两条应用都使用 Allow 策略，只允许网站所有者的管理员邮箱。然后在 Worker 的 Variables and Secrets 配置：
+在 GitHub 个人设置的 Developer settings → OAuth Apps 创建网站所有者自己的 OAuth App：
 
 ```text
-AUTH_PROVIDER=cloudflare-access
-ADMIN_EMAILS=<管理员邮箱，多个用逗号分隔>
-CF_ACCESS_TEAM_DOMAIN=<团队名>.cloudflareaccess.com
-CF_ACCESS_AUDS=<两条 Access 应用的 AUD，用逗号分隔>
+Application name: LIUHAN HankLau Portfolio Admin
+Homepage URL: https://liuhan-hanklau.veritasrensheng.workers.dev
+Authorization callback URL: https://liuhan-hanklau.veritasrensheng.workers.dev/api/auth/github/callback
 ```
 
-这四项属于运行时配置，不写进 GitHub。代码会验证 Access JWT 的签名、签发者、有效期、类型、AUD 与邮箱；缺少配置时后台默认拒绝访问。
+不要启用 Device Flow。生成 Client Secret 后，在 Worker 的 Variables and Secrets 配置：
+
+```text
+AUTH_PROVIDER=github
+ADMIN_EMAILS=<管理员邮箱>
+ADMIN_GITHUB_LOGINS=<允许登录的 GitHub 用户名，多个用逗号分隔>
+GITHUB_OAUTH_CLIENT_ID=<OAuth App Client ID>
+GITHUB_OAUTH_CLIENT_SECRET=<OAuth App Client Secret，必须使用 Secret 类型>
+SESSION_SECRET=<至少 32 字节随机值，必须使用 Secret 类型>
+```
+
+这些属于运行时配置，不写进 GitHub。代码只申请 GitHub `read:user` 只读权限，用随机 `state` 防止跨站请求伪造，只允许配置中的 GitHub 用户名，并签发 12 小时 HttpOnly、Secure、SameSite 会话；GitHub access token 完成身份确认后不会保存。缺少配置、会话签名错误、过期或账号不匹配时，后台默认拒绝访问。
+
+Cloudflare Access 仍保留为可选企业方案；若账户开通 Zero Trust 并配置 `CF_ACCESS_TEAM_DOMAIN` 与 `CF_ACCESS_AUDS`，可把 `AUTH_PROVIDER` 改回 `cloudflare-access`。
 
 ## 4. GitHub Pages 镜像
 
@@ -79,5 +86,5 @@ CONTENT_API_URL=https://<Cloudflare 主站域名>
 - 代码：从 GitHub 克隆并切到最近正常提交。
 - 内容：从 D1 备份或 `/api/site` JSON 恢复。
 - 素材：已开通 R2 时从 R2 与原始文件备份恢复；未开通时从作品外链和原始文件备份恢复。
-- 权限：在 Access 中撤销旧邮箱/会话并重新配置允许邮箱。
+- 权限：在 GitHub OAuth App 中重置 Client Secret，并在 Cloudflare 中轮换 `GITHUB_OAUTH_CLIENT_SECRET` 与 `SESSION_SECRET`；必要时修改允许的 GitHub 用户名。
 - 域名：Worker 默认域名可独立工作；自定义域名应在 Cloudflare DNS 中维护。
