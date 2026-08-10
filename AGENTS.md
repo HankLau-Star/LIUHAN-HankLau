@@ -23,7 +23,7 @@
 
 - `main` 分支是唯一源码源。GitHub Pages 和 Cloudflare Workers 均从它构建；不要在线上直接维护另一份代码。
 - `.github/workflows/deploy-pages.yml` 发布静态镜像；仓库变量 `CONTENT_API_URL` 指向 Cloudflare 主站，使镜像读取同一份内容。
-- `wrangler.jsonc` 定义 Cloudflare Worker、D1 数据库和 R2 素材桶；Cloudflare Access 保护 `/admin*` 与 `/api/admin/*`。
+- `wrangler.jsonc` 默认只定义 Cloudflare Worker、D1 数据库和静态资产；R2 `MEDIA` 是所有者主动开通计费后才添加的可选素材桶。Cloudflare Access 保护 `/admin*` 与 `/api/admin/*`。
 - Cloudflare 运行时变量 `AUTH_PROVIDER`、`ADMIN_EMAILS`、`CF_ACCESS_TEAM_DOMAIN`、`CF_ACCESS_AUDS` 只能保存在 Cloudflare 控制台，不能提交到仓库。
 - `.openai/hosting.json` 仅用于保留旧 OpenAI Sites 回退部署；Cloudflare 完成核验前不要删除旧站或旧数据。
 - `lib/site-content.ts` 中的 `defaultSiteContent` 是代码级默认内容和故障回退。后台有已保存内容时，数据库内容优先。

@@ -14,11 +14,6 @@
       "migrations_dir": "drizzle"
     }
   ],
-  "r2_buckets": [
-    {
-      "binding": "MEDIA"
-    }
-  ],
   "observability": {
     "enabled": true
   }
