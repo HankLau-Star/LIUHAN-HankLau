@@ -18,4 +18,4 @@ pnpm dev
 pnpm test
 ```
 
-项目基于 vinext/Next.js。GitHub 是唯一源码源；Cloudflare Workers、免费 D1 与 Access 承载独立全栈主站和后台，R2 素材上传为所有者主动开通后的可选扩展，GitHub Pages 保留为静态公开镜像。旧 OpenAI Sites 在迁移核验完成前仅作为回退。具体架构、修改方式和发布流程请阅读交接说明。
+项目基于 vinext/Next.js。GitHub 是唯一源码源；Cloudflare Workers、免费 D1 与所有者限定的 GitHub OAuth 承载独立全栈主站和后台，R2 素材上传为所有者主动开通后的可选扩展，GitHub Pages 保留为静态公开镜像。旧 OpenAI Sites 在迁移核验完成前仅作为回退。具体架构、修改方式和发布流程请阅读交接说明。
