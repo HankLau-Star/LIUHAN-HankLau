@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { adminSignOutPath, hasConfiguredAdmin, isAdminEmail, isCloudflareAccessMode, requireAdminUser } from "../../lib/admin-auth";
 import AdminDashboard from "./AdminDashboard";
 
@@ -27,7 +28,7 @@ export default async function AdminPage() {
           <span>LIUHAN / ACCESS CONTROL</span>
           <h1>{title}</h1>
           <p>{detail}</p>
-          <div><a href="/">返回网站</a>{user ? <a href={adminSignOutPath(user, "/admin")}>切换账号</a> : null}</div>
+          <div><Link href="/">返回网站</Link>{user ? <a href={adminSignOutPath(user, "/admin")}>切换账号</a> : null}</div>
         </div>
       </main>
     );
