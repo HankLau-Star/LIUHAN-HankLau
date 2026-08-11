@@ -307,7 +307,7 @@ export default function Home() {
                     ) : null}
                     <div className="work-card-top"><span>{work.platform}</span><strong>{work.metric}</strong></div>
                     <span className="work-number">{String(index + 1).padStart(2, "0")}</span>
-                    <h3>{work.title}</h3>
+                    <h3 title={work.title}>{work.title}</h3>
                     <p className={isWechat ? "work-excerpt is-note" : "work-excerpt"}>{isWechat ? work.summary : <><i>“</i>{work.summary}<i>”</i></>}</p>
                     <div className="work-card-foot"><span>LIUHAN · ORIGINAL</span><b>阅读全文 ↗</b></div>
                   </>
