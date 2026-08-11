@@ -12,7 +12,8 @@ const navItems = [
 
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 const contentApiOrigin = (process.env.NEXT_PUBLIC_CONTENT_API ?? "https://ascender-archive-01.valid-gnat-7482.chatgpt.site").replace(/\/$/, "");
-const adminHref = basePath ? `${contentApiOrigin}/admin` : "/admin";
+const adminAuthPath = "/api/auth/github/start?returnTo=%2Fadmin";
+const adminSignInHref = basePath ? `${contentApiOrigin}${adminAuthPath}` : adminAuthPath;
 const soundtrackUrl = "https://cdn.pixabay.com/download/audio/2026/07/13/audio_a4679e250c.mp3";
 const soundtrackPage = "https://pixabay.com/music/future-bass-sport-version-1-mortals-566579/";
 
@@ -428,12 +429,12 @@ export default function Home() {
             <div className="admin-gate-body">
               <small>LIUHAN / PRIVATE SYSTEM</small>
               <h2 id="admin-gate-title">进入个人综合管理</h2>
-              <p>后台仅向网站所有者开放。点击验证后，将在 GitHub 官方页面输入账号与密码；本站不会读取或保存你的密码。</p>
+              <p>后台仅向网站所有者开放。点击验证后，将在 GitHub 官方页面输入账号与密码；本站不会读取或保存你的密码，电脑与手机浏览器均可登录。</p>
               <div className="admin-gate-identity">
                 <span><small>AUTHORIZED ACCOUNT</small><strong>HankLau-Star</strong></span>
                 <span><small>SECURITY</small><strong>GITHUB OAUTH · ENCRYPTED</strong></span>
               </div>
-              <a className="admin-gate-action" href={adminHref}><span>验证账号密码</span><b>ENTER CONSOLE ↗</b></a>
+              <a className="admin-gate-action" href={adminSignInHref}><span>使用 GitHub 安全登录</span><b>VERIFY & ENTER ↗</b></a>
               <em>登录成功后进入“个人综合管理”，可修改前台内容与个人资产。</em>
             </div>
           </section>
