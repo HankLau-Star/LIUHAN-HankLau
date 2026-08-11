@@ -3363,8 +3363,14 @@ body {
 .admin-denied-card > span { color: #62bfff; font-family: var(--font-mono); font-size: 8px; letter-spacing: .15em; }
 .admin-denied-card h1 { margin: 22px 0 16px; font-family: var(--font-display); font-size: clamp(2.3rem, 6vw, 4.6rem); line-height: 1.05; }
 .admin-denied-card p { color: #7f899e; line-height: 1.8; }
+.admin-login-identity { display: grid; gap: 7px; margin-top: 24px; padding: 17px 18px; border: 1px solid rgba(96, 166, 255, .18); border-radius: 5px; background: rgba(5, 13, 26, .72); }
+.admin-login-identity small { color: #5e7798; font-family: var(--font-mono); font-size: 6px; letter-spacing: .14em; }
+.admin-login-identity strong { color: #dceeff; font-family: var(--font-display); font-size: 20px; font-weight: 500; }
+.admin-login-identity em { color: #63718a; font-size: 8px; font-style: normal; }
 .admin-denied-card div { display: flex; gap: 10px; margin-top: 30px; }
+.admin-denied-card .admin-login-identity { display: grid; margin-top: 24px; }
 .admin-denied-card a { padding: 12px 16px; border: 1px solid rgba(98, 173, 255, .25); border-radius: 3px; background: rgba(19, 67, 130, .18); font-size: 10px; }
+.admin-denied-card a.is-primary { color: #fff; border-color: rgba(93, 180, 255, .5); background: linear-gradient(120deg, #1258cc, #1688e2); box-shadow: 0 12px 34px rgba(0, 93, 255, .2); }
 
 @keyframes radar-spin { to { transform: rotate(360deg); } }
 @keyframes signal-wave { 0% { inset: 45%; opacity: 0; } 20% { opacity: .75; } 100% { inset: 0; opacity: 0; } }
@@ -3450,6 +3456,8 @@ body {
   .admin-asset-file-strip > div { grid-column: 1 / -1; }
   .admin-upload { align-items: stretch; flex-direction: column; }
   .admin-upload input { max-width: 100%; }
+  .admin-denied-card > div:last-child { align-items: stretch; flex-direction: column; }
+  .admin-denied-card > div:last-child a { text-align: center; }
 }
 
 @media (prefers-reduced-motion: reduce) {
