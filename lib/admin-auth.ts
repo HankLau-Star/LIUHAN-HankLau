@@ -59,6 +59,12 @@ export async function requireAdminUser(returnTo: string): Promise<AdminUser | nu
   redirect(chatGPTSignInPath(returnTo));
 }
 
+export function adminSignInPath(returnTo = "/admin"): string {
+  if (isGitHubOAuthMode()) return githubSignInPath(returnTo);
+  if (isCloudflareAccessMode()) return returnTo;
+  return chatGPTSignInPath(returnTo);
+}
+
 export function adminSignOutPath(user: AdminUser, returnTo = "/"): string {
   if (user.provider === "github") return githubSignOutPath(returnTo);
   return user.provider === "cloudflare-access" ? "/cdn-cgi/access/logout" : chatGPTSignOutPath(returnTo);
