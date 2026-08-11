@@ -17,11 +17,11 @@ type CollectionKey =
   | "spiritualAssets"
   | "physicalAssets"
   | "workAssets";
-type StaticTab = "siteSettings" | "personalOverview" | "societyOverview" | "natureOverview";
+type StaticTab = "siteSettings" | "personalOverview" | "societyOverview" | "natureOverview" | "personalManagement" | "personalCredibility";
 type AdminTab = StaticTab | CollectionKey;
 type FieldConfig = { key: string; label: string; kind?: "text" | "textarea" | "url" };
 type CollectionConfig = { key: CollectionKey; title: string; eyebrow: string; description: string; fields: FieldConfig[]; blank: Record<string, string | string[]> };
-type NavGroup = { key: string; code: string; title: string; subtitle: string; items: Array<{ tab: AdminTab; code: string; label: string }> };
+type NavGroup = { key: string; code: string; title: string; subtitle: string; items: Array<{ tab: AdminTab; code: string; label: string; sectionLabel?: string }> };
 type AssetCollectionKey = "spiritualAssets" | "physicalAssets" | "workAssets";
 type AssetUploadKind = "text" | "audio" | "video" | "image";
 
@@ -62,17 +62,17 @@ const collections: CollectionConfig[] = [
   { key: "workAssets", title: "个人作品资产", eyebrow: "ASSET LIBRARY · WORK", description: "分别归档文字、音乐、视频与图片作品；上传后可继续补充说明、状态、成绩与外部链接。", fields: assetFields, blank: { title: "新作品资产", category: "文字作品", status: "已完成", detail: "补充资产说明", value: "", url: "", assetType: "text", mediaUrl: "", mediaType: "", filename: "" } },
 ];
 
+const credibilityCollections = collections.filter((item) => item.key === "skills" || item.key === "honors");
+
 const navGroups: NavGroup[] = [
   { key: "settings", code: "00", title: "站点设置", subtitle: "HOME · CONTACT", items: [{ tab: "siteSettings", code: "00", label: "首页与联系方式" }] },
   {
     key: "personal", code: "01", title: "个人", subtitle: "PERSONAL WORLD", items: [
       { tab: "personalOverview", code: "A", label: "个人概览" },
-      { tab: "skills", code: "B", label: "个人能力" },
-      { tab: "honors", code: "C", label: "荣誉与背书" },
-      { tab: "inputs", code: "D", label: "输入" },
-      { tab: "outputs", code: "E", label: "输出" },
-      { tab: "experiences", code: "F", label: "实习与实践" },
-      { tab: "works", code: "G", label: "代表作品" },
+      { tab: "inputs", code: "B", label: "输入" },
+      { tab: "outputs", code: "C", label: "输出" },
+      { tab: "experiences", code: "D", label: "实习与实践" },
+      { tab: "works", code: "E", label: "代表作品" },
     ],
   },
   {
@@ -89,8 +89,10 @@ const navGroups: NavGroup[] = [
     ],
   },
   {
-    key: "assets", code: "∞", title: "个人资产库", subtitle: "PRIVATE ASSET LIBRARY", items: [
-      { tab: "spiritualAssets", code: "M", label: "个人精神资产" },
+    key: "management", code: "∞", title: "个人综合管理", subtitle: "PERSONAL OPERATING SYSTEM", items: [
+      { tab: "personalManagement", code: "00", label: "综合管理总览" },
+      { tab: "personalCredibility", code: "S", label: "个人实力与背书" },
+      { tab: "spiritualAssets", code: "M", label: "个人精神资产", sectionLabel: "个人资产库" },
       { tab: "physicalAssets", code: "O", label: "个人实物资产" },
       { tab: "workAssets", code: "W", label: "个人作品资产" },
     ],
@@ -269,6 +271,13 @@ export default function AdminDashboard({ displayName, email, signOutPath }: { di
     }
   }
 
+  const managementCards: Array<{ tab: AdminTab; code: string; title: string; detail: string; value: number }> = [
+    { tab: "personalCredibility", code: "01", title: "个人实力与背书", detail: "个人能力、荣誉称号与可信证明", value: content.skills.length + content.honors.length },
+    { tab: "spiritualAssets", code: "02", title: "个人精神资产", detail: "价值观、知识框架、经验与长期认知", value: content.spiritualAssets.length },
+    { tab: "physicalAssets", code: "03", title: "个人实物资产", detail: "设备、藏书、收藏与创作支持物", value: content.physicalAssets.length },
+    { tab: "workAssets", code: "04", title: "个人作品资产", detail: "文字、音乐、视频与图片作品归档", value: content.workAssets.length },
+  ];
+
   return (
     <main className="admin-shell">
       <aside className="admin-sidebar">
@@ -278,7 +287,10 @@ export default function AdminDashboard({ displayName, email, signOutPath }: { di
             <section className={`admin-nav-group is-${group.key}`} key={group.key}>
               <header><span>{group.code}</span><strong>{group.title}<small>{group.subtitle}</small></strong></header>
               <div>{group.items.map((item) => (
-                <button key={item.tab} className={activeTab === item.tab ? "is-active" : ""} onClick={() => setActiveTab(item.tab)}><span>{item.code}</span>{item.label}</button>
+                <div className="admin-nav-entry" key={item.tab}>
+                  {item.sectionLabel ? <small className="admin-nav-subheading">{item.sectionLabel}</small> : null}
+                  <button className={activeTab === item.tab ? "is-active" : ""} onClick={() => setActiveTab(item.tab)}><span>{item.code}</span>{item.label}</button>
+                </div>
               ))}</div>
             </section>
           ))}
@@ -319,10 +331,43 @@ export default function AdminDashboard({ displayName, email, signOutPath }: { di
           </div>
         ) : activeTab === "personalOverview" ? (
           <div className="admin-panel">
-            <PanelHeading eyebrow="01 / PERSONAL WORLD" title="个人" description="前台个人世界的总览文案；能力、背书、输入、输出、实践与作品都已归入左侧个人分区。" />
+            <PanelHeading eyebrow="01 / PERSONAL WORLD" title="个人" description="前台个人世界的总览文案；输入、输出、实践与作品归入本区，实力、背书和资产统一进入“个人综合管理”。" />
             <EditorSection title="个人世界概览">
               <TextField label="个人章节简介" value={content.personalSummary} multiline onChange={(value) => setContent((previous) => ({ ...previous, personalSummary: value }))} />
             </EditorSection>
+          </div>
+        ) : activeTab === "personalManagement" ? (
+          <div className="admin-panel is-personal-management">
+            <PanelHeading eyebrow="∞ / PERSONAL OPERATING SYSTEM" title="个人综合管理" description="集中管理个人实力、荣誉背书与三类个人资产，形成一个可持续更新的个人操作系统。" />
+            <div className="admin-management-grid">
+              {managementCards.map((item) => (
+                <button key={item.tab} className="admin-management-card" data-code={item.code} onClick={() => setActiveTab(item.tab)}>
+                  <span>{item.code}</span>
+                  <strong>{item.title}</strong>
+                  <p>{item.detail}</p>
+                  <small>{String(item.value).padStart(2, "0")} ITEMS <b>进入管理 ↗</b></small>
+                </button>
+              ))}
+            </div>
+            <div className="admin-private-note">
+              <span>PRIVATE / BACKEND ONLY</span>
+              <p>个人综合管理只服务于你的后台整理与长期成长；前台仍按个人、社会世界、自然世界三部分展示，不会公开资产库内容。</p>
+            </div>
+          </div>
+        ) : activeTab === "personalCredibility" ? (
+          <div className="admin-panel is-personal-management">
+            <PanelHeading eyebrow="PERSONAL OS · STRENGTH & CREDIBILITY" title="个人实力与背书" description="统一管理个人能力、工具方法、荣誉称号与可信证明；保存后，相关公开内容会同步更新到前台个人部分。" />
+            {credibilityCollections.map((config) => (
+              <CollectionEditorBlock
+                key={config.key}
+                config={config}
+                rows={content[config.key] as unknown as Array<Record<string, string | string[]>>}
+                onUpdate={(index, field, value) => updateCollection(config.key, index, field, value)}
+                onMove={(index, direction) => moveCollectionItem(config.key, index, direction)}
+                onRemove={(index) => removeCollectionItem(config.key, index)}
+                onAdd={() => addCollectionItem(config)}
+              />
+            ))}
           </div>
         ) : activeTab === "societyOverview" ? (
           <div className="admin-panel">
@@ -402,6 +447,44 @@ export default function AdminDashboard({ displayName, email, signOutPath }: { di
         ) : null}
       </section>
     </main>
+  );
+}
+
+function CollectionEditorBlock({ config, rows, onUpdate, onMove, onRemove, onAdd }: {
+  config: CollectionConfig;
+  rows: Array<Record<string, string | string[]>>;
+  onUpdate: (index: number, field: string, value: string) => void;
+  onMove: (index: number, direction: -1 | 1) => void;
+  onRemove: (index: number) => void;
+  onAdd: () => void;
+}) {
+  return (
+    <section className="admin-management-collection">
+      <header>
+        <div><span>{config.eyebrow}</span><h2>{config.title}</h2></div>
+        <p>{config.description}</p>
+      </header>
+      <div className="admin-list">
+        {rows.map((row, index) => (
+          <article className="admin-list-item" key={`${config.key}-${index}`}>
+            <header>
+              <span>{String(index + 1).padStart(2, "0")}</span>
+              <div>
+                <button onClick={() => onMove(index, -1)} aria-label="上移">↑</button>
+                <button onClick={() => onMove(index, 1)} aria-label="下移">↓</button>
+                <button className="is-danger" onClick={() => onRemove(index)}>删除</button>
+              </div>
+            </header>
+            <div className="admin-form-grid">
+              {config.fields.map((field) => (
+                <TextField key={field.key} label={field.label} multiline={field.kind === "textarea"} value={String(row[field.key] ?? "")} onChange={(value) => onUpdate(index, field.key, value)} />
+              ))}
+            </div>
+          </article>
+        ))}
+      </div>
+      <button className="admin-add" onClick={onAdd}>＋ 新增一项</button>
+    </section>
   );
 }
 
