@@ -37,6 +37,15 @@ export type WorkItem = {
   mediaType: string;
 };
 
+export type AssetItem = {
+  title: string;
+  category: string;
+  status: string;
+  detail: string;
+  value: string;
+  url: string;
+};
+
 export type SiteContent = {
   brand: {
     name: string;
@@ -68,6 +77,9 @@ export type SiteContent = {
   };
   natureSummary: string;
   natureItems: StoryItem[];
+  spiritualAssets: AssetItem[];
+  physicalAssets: AssetItem[];
+  workAssets: AssetItem[];
   contact: {
     heading: string;
     body: string;
@@ -204,6 +216,36 @@ export const defaultSiteContent: SiteContent = {
     { label: "SENSE", title: "素描 × 动漫 × 审美", body: "从中学时期延续至今的视觉敏感度，构成叙事与创作的底色。" },
     { label: "RHYTHM", title: "自我照料 × 规律生活", body: "护肤、训练与休息，让纪律变成可持续的日常节律。" },
   ],
+  spiritualAssets: [
+    {
+      title: "个人原则与方法论",
+      category: "精神资产",
+      status: "持续沉淀",
+      detail: "记录价值观、长期原则、知识框架与关键认知。",
+      value: "",
+      url: "",
+    },
+  ],
+  physicalAssets: [
+    {
+      title: "实物资产清单",
+      category: "实物资产",
+      status: "待补充",
+      detail: "记录设备、藏书、收藏，以及支持创作与生活的实物。",
+      value: "",
+      url: "",
+    },
+  ],
+  workAssets: [
+    {
+      title: "个人作品归档",
+      category: "作品资产",
+      status: "持续更新",
+      detail: "记录文章、视频、三维作品、AI 电影及可访问链接。",
+      value: "",
+      url: "",
+    },
+  ],
   contact: {
     heading: "保持联系。",
     body: "我始终对真实、坦诚、有意思的交流保持开放。无论你来自哪里、正在做什么，只要想认识我、交换想法或一起成长，都欢迎随时联系。保持开放，快速成长。",
@@ -280,6 +322,9 @@ export function normalizeSiteContent(value: unknown): SiteContent {
     socialNote: cleanObject(source.socialNote, defaultSiteContent.socialNote),
     natureSummary: cleanText(source.natureSummary, defaultSiteContent.natureSummary),
     natureItems: cleanList(source.natureItems, defaultSiteContent.natureItems, 12),
+    spiritualAssets: cleanList(source.spiritualAssets, defaultSiteContent.spiritualAssets, 100, ["url"]),
+    physicalAssets: cleanList(source.physicalAssets, defaultSiteContent.physicalAssets, 100, ["url"]),
+    workAssets: cleanList(source.workAssets, defaultSiteContent.workAssets, 100, ["url"]),
     contact: cleanObject(source.contact, defaultSiteContent.contact, ["emailUrl", "socialUrl"]),
   };
 }
