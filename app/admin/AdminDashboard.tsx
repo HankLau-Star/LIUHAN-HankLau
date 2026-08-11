@@ -1,29 +1,92 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { defaultSiteContent, normalizeSiteContent, type SiteContent } from "../../lib/site-content";
 
-type CollectionKey = "skills" | "honors" | "inputs" | "outputs" | "experiences" | "works" | "metrics" | "platforms" | "natureItems";
+type CollectionKey =
+  | "skills"
+  | "honors"
+  | "inputs"
+  | "outputs"
+  | "experiences"
+  | "works"
+  | "metrics"
+  | "platforms"
+  | "natureItems"
+  | "spiritualAssets"
+  | "physicalAssets"
+  | "workAssets";
+type StaticTab = "siteSettings" | "personalOverview" | "societyOverview" | "natureOverview";
+type AdminTab = StaticTab | CollectionKey;
 type FieldConfig = { key: string; label: string; kind?: "text" | "textarea" | "url" };
-type CollectionConfig = { key: CollectionKey; title: string; description: string; fields: FieldConfig[]; blank: Record<string, string | string[]> };
+type CollectionConfig = { key: CollectionKey; title: string; eyebrow: string; description: string; fields: FieldConfig[]; blank: Record<string, string | string[]> };
+type NavGroup = { key: string; code: string; title: string; subtitle: string; items: Array<{ tab: AdminTab; code: string; label: string }> };
+
+const assetFields: FieldConfig[] = [
+  { key: "title", label: "资产名称" },
+  { key: "category", label: "类别 / 标签" },
+  { key: "status", label: "状态" },
+  { key: "value", label: "数量 / 价值 / 备注值（可选）" },
+  { key: "detail", label: "资产说明", kind: "textarea" },
+  { key: "url", label: "相关链接（可选）", kind: "url" },
+];
 
 const collections: CollectionConfig[] = [
-  { key: "skills", title: "个人能力", description: "能力名称与对应工具、方法。", fields: [{ key: "title", label: "能力" }, { key: "detail", label: "说明", kind: "textarea" }], blank: { title: "新能力", detail: "能力说明" } },
-  { key: "honors", title: "荣誉与背书", description: "荣誉名称与证明信息。", fields: [{ key: "title", label: "荣誉" }, { key: "detail", label: "说明" }], blank: { title: "新荣誉", detail: "补充说明" } },
-  { key: "inputs", title: "输入", description: "学习、观察与生活输入。", fields: [{ key: "label", label: "分类" }, { key: "title", label: "标题" }, { key: "body", label: "正文", kind: "textarea" }], blank: { label: "新输入", title: "输入标题", body: "补充说明" } },
-  { key: "outputs", title: "输出", description: "实践、社群、自媒体、书籍、创业与公共影响。", fields: [{ key: "label", label: "编号" }, { key: "title", label: "标题" }, { key: "body", label: "正文", kind: "textarea" }], blank: { label: "00", title: "新输出", body: "补充说明" } },
-  { key: "experiences", title: "实践经历", description: "公司、角色与经历说明。", fields: [{ key: "company", label: "机构" }, { key: "role", label: "角色" }, { key: "body", label: "经历", kind: "textarea" }], blank: { company: "新机构", role: "角色", body: "经历说明" } },
-  { key: "works", title: "代表作品", description: "管理个人模块中的作品卡片、内容摘录、阅读成绩、原文链接与作品素材。", fields: [{ key: "platform", label: "平台与类型" }, { key: "metric", label: "代表成绩" }, { key: "title", label: "作品标题" }, { key: "summary", label: "内容摘录或说明", kind: "textarea" }, { key: "url", label: "原文链接", kind: "url" }, { key: "mediaUrl", label: "作品图片或视频链接", kind: "url" }, { key: "mediaType", label: "素材类型（image / video）" }], blank: { platform: "ORIGINAL WORK", metric: "代表成绩", title: "新作品", summary: "补充内容摘录", url: "", mediaUrl: "", mediaType: "" } },
-  { key: "metrics", title: "社会影响力数值", description: "首页数据看板中的核心数值。", fields: [{ key: "label", label: "英文标签" }, { key: "value", label: "数值" }, { key: "detail", label: "说明" }], blank: { label: "NEW METRIC", value: "0", detail: "数据说明" } },
-  { key: "platforms", title: "平台矩阵", description: "各内容平台的数据与代表成绩。", fields: [{ key: "name", label: "平台" }, { key: "value", label: "粉丝数" }, { key: "detail", label: "代表成绩" }], blank: { name: "新平台", value: "0", detail: "补充成绩" } },
-  { key: "natureItems", title: "自然世界", description: "身体、运动、感知与生活节律。", fields: [{ key: "label", label: "英文标签" }, { key: "title", label: "标题" }, { key: "body", label: "正文", kind: "textarea" }], blank: { label: "LIFE", title: "新条目", body: "补充说明" } },
+  { key: "skills", title: "个人能力", eyebrow: "01 / PERSONAL · CREDIBILITY", description: "归入个人实力与背书，管理能力名称、工具和方法。", fields: [{ key: "title", label: "能力" }, { key: "detail", label: "说明", kind: "textarea" }], blank: { title: "新能力", detail: "能力说明" } },
+  { key: "honors", title: "荣誉与背书", eyebrow: "01 / PERSONAL · CREDIBILITY", description: "归入个人实力与背书，管理荣誉、称号与证明信息。", fields: [{ key: "title", label: "荣誉" }, { key: "detail", label: "说明" }], blank: { title: "新荣誉", detail: "补充说明" } },
+  { key: "inputs", title: "输入", eyebrow: "01 / PERSONAL · INPUT", description: "管理学习、观察、阅读与生活输入。", fields: [{ key: "label", label: "分类" }, { key: "title", label: "标题" }, { key: "body", label: "正文", kind: "textarea" }], blank: { label: "新输入", title: "输入标题", body: "补充说明" } },
+  { key: "outputs", title: "输出", eyebrow: "01 / PERSONAL · OUTPUT", description: "管理社群、自媒体、书籍、创业与百科公共影响力等个人输出。", fields: [{ key: "label", label: "编号" }, { key: "title", label: "标题" }, { key: "body", label: "正文", kind: "textarea" }], blank: { label: "00", title: "新输出", body: "补充说明" } },
+  { key: "experiences", title: "实习与实践", eyebrow: "01 / PERSONAL · OUTPUT", description: "作为个人输出的一部分，管理公司、角色与实践经历。", fields: [{ key: "company", label: "机构" }, { key: "role", label: "角色" }, { key: "body", label: "经历", kind: "textarea" }], blank: { company: "新机构", role: "角色", body: "经历说明" } },
+  { key: "works", title: "代表作品", eyebrow: "01 / PERSONAL · SELECTED WORKS", description: "作为个人输出的一部分，管理作品标题、内容摘录、成绩、原文链接与素材。", fields: [{ key: "platform", label: "平台与类型" }, { key: "metric", label: "代表成绩" }, { key: "title", label: "作品标题" }, { key: "summary", label: "内容摘录或说明", kind: "textarea" }, { key: "url", label: "原文链接", kind: "url" }, { key: "mediaUrl", label: "作品图片或视频链接", kind: "url" }, { key: "mediaType", label: "素材类型（image / video）" }], blank: { platform: "ORIGINAL WORK", metric: "代表成绩", title: "新作品", summary: "补充内容摘录", url: "", mediaUrl: "", mediaType: "" } },
+  { key: "metrics", title: "社会影响力数值", eyebrow: "02 / SOCIAL WORLD · IMPACT", description: "管理社会世界数据看板中的核心数值。", fields: [{ key: "label", label: "英文标签" }, { key: "value", label: "数值" }, { key: "detail", label: "说明" }], blank: { label: "NEW METRIC", value: "0", detail: "数据说明" } },
+  { key: "platforms", title: "平台矩阵", eyebrow: "02 / SOCIAL WORLD · NETWORK", description: "管理各内容平台的数据与代表成绩。", fields: [{ key: "name", label: "平台" }, { key: "value", label: "粉丝数" }, { key: "detail", label: "代表成绩" }], blank: { name: "新平台", value: "0", detail: "补充成绩" } },
+  { key: "natureItems", title: "身体、感知与生活", eyebrow: "03 / NATURAL WORLD · RHYTHM", description: "管理身体、运动、感知与生活节律。", fields: [{ key: "label", label: "英文标签" }, { key: "title", label: "标题" }, { key: "body", label: "正文", kind: "textarea" }], blank: { label: "LIFE", title: "新条目", body: "补充说明" } },
+  { key: "spiritualAssets", title: "个人精神资产", eyebrow: "ASSET LIBRARY · MIND", description: "独立记录价值观、知识框架、方法论、经验与长期认知。此内容仅在后台管理。", fields: assetFields, blank: { title: "新精神资产", category: "精神资产", status: "持续沉淀", detail: "补充资产说明", value: "", url: "" } },
+  { key: "physicalAssets", title: "个人实物资产", eyebrow: "ASSET LIBRARY · OBJECT", description: "独立记录设备、藏书、收藏与其他支持生活和创作的实物。此内容仅在后台管理。", fields: assetFields, blank: { title: "新实物资产", category: "实物资产", status: "使用中", detail: "补充资产说明", value: "", url: "" } },
+  { key: "workAssets", title: "个人作品资产", eyebrow: "ASSET LIBRARY · WORK", description: "独立归档文章、视频、三维作品、AI 电影、项目与版权链接。此内容仅在后台管理。", fields: assetFields, blank: { title: "新作品资产", category: "作品资产", status: "已完成", detail: "补充资产说明", value: "", url: "" } },
+];
+
+const navGroups: NavGroup[] = [
+  { key: "settings", code: "00", title: "站点设置", subtitle: "HOME · CONTACT", items: [{ tab: "siteSettings", code: "00", label: "首页与联系方式" }] },
+  {
+    key: "personal", code: "01", title: "个人", subtitle: "PERSONAL WORLD", items: [
+      { tab: "personalOverview", code: "A", label: "个人概览" },
+      { tab: "skills", code: "B", label: "个人能力" },
+      { tab: "honors", code: "C", label: "荣誉与背书" },
+      { tab: "inputs", code: "D", label: "输入" },
+      { tab: "outputs", code: "E", label: "输出" },
+      { tab: "experiences", code: "F", label: "实习与实践" },
+      { tab: "works", code: "G", label: "代表作品" },
+    ],
+  },
+  {
+    key: "society", code: "02", title: "社会世界", subtitle: "SOCIAL WORLD", items: [
+      { tab: "societyOverview", code: "A", label: "社会世界概览" },
+      { tab: "metrics", code: "B", label: "影响力数值" },
+      { tab: "platforms", code: "C", label: "平台矩阵" },
+    ],
+  },
+  {
+    key: "nature", code: "03", title: "自然世界", subtitle: "NATURAL WORLD", items: [
+      { tab: "natureOverview", code: "A", label: "自然世界概览" },
+      { tab: "natureItems", code: "B", label: "身体与感知" },
+    ],
+  },
+  {
+    key: "assets", code: "∞", title: "个人资产库", subtitle: "PRIVATE ASSET LIBRARY", items: [
+      { tab: "spiritualAssets", code: "M", label: "个人精神资产" },
+      { tab: "physicalAssets", code: "O", label: "个人实物资产" },
+      { tab: "workAssets", code: "W", label: "个人作品资产" },
+    ],
+  },
 ];
 
 type GroupKey = "brand" | "hero" | "socialNote" | "contact";
 
 export default function AdminDashboard({ displayName, email, signOutPath }: { displayName: string; email: string; signOutPath: string }) {
   const [content, setContent] = useState<SiteContent>(defaultSiteContent);
-  const [activeTab, setActiveTab] = useState<"overview" | CollectionKey>("overview");
+  const [activeTab, setActiveTab] = useState<AdminTab>("personalOverview");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploadingWork, setUploadingWork] = useState<number | null>(null);
@@ -45,19 +108,13 @@ export default function AdminDashboard({ displayName, email, signOutPath }: { di
   const currentCollection = useMemo(() => collections.find((item) => item.key === activeTab), [activeTab]);
 
   function updateGroup(group: GroupKey, field: string, value: string) {
-    setContent((previous) => ({
-      ...previous,
-      [group]: { ...previous[group], [field]: value },
-    }));
+    setContent((previous) => ({ ...previous, [group]: { ...previous[group], [field]: value } }));
   }
 
   function updateCollection(key: CollectionKey, index: number, field: string, value: string) {
     setContent((previous) => {
       const rows = previous[key] as unknown as Array<Record<string, string | string[]>>;
-      const nextRows = rows.map((row, rowIndex) => rowIndex === index ? {
-        ...row,
-        [field]: value,
-      } : row);
+      const nextRows = rows.map((row, rowIndex) => rowIndex === index ? { ...row, [field]: value } : row);
       return { ...previous, [key]: nextRows } as SiteContent;
     });
   }
@@ -78,7 +135,7 @@ export default function AdminDashboard({ displayName, email, signOutPath }: { di
 
   function moveCollectionItem(key: CollectionKey, index: number, direction: -1 | 1) {
     setContent((previous) => {
-      const rows = [...(previous[key] as unknown as Array<Record<string, string | string[]>>)];
+      const rows = [...(previous[key] as unknown as Array<Record<string, string | string[]>>)] as Array<Record<string, string | string[]>>;
       const destination = index + direction;
       if (destination < 0 || destination >= rows.length) return previous;
       [rows[index], rows[destination]] = [rows[destination], rows[index]];
@@ -129,10 +186,16 @@ export default function AdminDashboard({ displayName, email, signOutPath }: { di
   return (
     <main className="admin-shell">
       <aside className="admin-sidebar">
-        <a className="admin-brand" href="/"><span>HL</span><strong>LIUHAN<small>CONTENT CONSOLE</small></strong></a>
+        <Link className="admin-brand" href="/"><span>HL</span><strong>LIUHAN<small>CONTENT CONSOLE</small></strong></Link>
         <nav aria-label="内容编辑分类">
-          <button className={activeTab === "overview" ? "is-active" : ""} onClick={() => setActiveTab("overview")}><span>00</span>全局文案</button>
-          {collections.map((item, index) => <button key={item.key} className={activeTab === item.key ? "is-active" : ""} onClick={() => setActiveTab(item.key)}><span>{String(index + 1).padStart(2, "0")}</span>{item.title}</button>)}
+          {navGroups.map((group) => (
+            <section className={`admin-nav-group is-${group.key}`} key={group.key}>
+              <header><span>{group.code}</span><strong>{group.title}<small>{group.subtitle}</small></strong></header>
+              <div>{group.items.map((item) => (
+                <button key={item.tab} className={activeTab === item.tab ? "is-active" : ""} onClick={() => setActiveTab(item.tab)}><span>{item.code}</span>{item.label}</button>
+              ))}</div>
+            </section>
+          ))}
         </nav>
         <div className="admin-account"><span>ADMINISTRATOR</span><strong>{displayName}</strong><small>{email}</small><a href={signOutPath}>退出登录</a></div>
       </aside>
@@ -143,9 +206,9 @@ export default function AdminDashboard({ displayName, email, signOutPath }: { di
           <div><a href="/" target="_blank" rel="noreferrer">预览前台 ↗</a><button disabled={saving || loading} onClick={saveContent}>{saving ? "保存中…" : "保存全部修改"}</button></div>
         </header>
 
-        {activeTab === "overview" ? (
+        {activeTab === "siteSettings" ? (
           <div className="admin-panel">
-            <div className="admin-panel-heading"><span>00 / GLOBAL CONTENT</span><h1>全局文案与联系方式</h1><p>这里控制品牌、首屏、三个世界的章节简介和联系入口。</p></div>
+            <PanelHeading eyebrow="00 / SITE SYSTEM" title="首页与联系方式" description="只管理全站共用的品牌状态、首页首屏与最终联系入口；三个世界的内容在对应分区内维护。" />
             <EditorSection title="品牌状态">
               <TextField label="品牌名称" value={content.brand.name} onChange={(value) => updateGroup("brand", "name", value)} />
               <TextField label="品牌副标题" value={content.brand.subtitle} onChange={(value) => updateGroup("brand", "subtitle", value)} />
@@ -159,16 +222,6 @@ export default function AdminDashboard({ displayName, email, signOutPath }: { di
               <TextField label="标题强调词" value={content.hero.accent} onChange={(value) => updateGroup("hero", "accent", value)} />
               <TextField label="首页简介" value={content.hero.intro} multiline onChange={(value) => updateGroup("hero", "intro", value)} />
             </EditorSection>
-            <EditorSection title="章节简介">
-              <TextField label="个人" value={content.personalSummary} multiline onChange={(value) => setContent((previous) => ({ ...previous, personalSummary: value }))} />
-              <TextField label="代表作品" value={content.worksIntro} multiline onChange={(value) => setContent((previous) => ({ ...previous, worksIntro: value }))} />
-              <TextField label="社会世界" value={content.societySummary} multiline onChange={(value) => setContent((previous) => ({ ...previous, societySummary: value }))} />
-              <TextField label="自然世界" value={content.natureSummary} multiline onChange={(value) => setContent((previous) => ({ ...previous, natureSummary: value }))} />
-            </EditorSection>
-            <EditorSection title="社会世界结语">
-              <TextField label="标题" value={content.socialNote.title} onChange={(value) => updateGroup("socialNote", "title", value)} />
-              <TextField label="正文" value={content.socialNote.body} multiline onChange={(value) => updateGroup("socialNote", "body", value)} />
-            </EditorSection>
             <EditorSection title="联系方式">
               <TextField label="标题" value={content.contact.heading} onChange={(value) => updateGroup("contact", "heading", value)} />
               <TextField label="简介" value={content.contact.body} multiline onChange={(value) => updateGroup("contact", "body", value)} />
@@ -178,9 +231,40 @@ export default function AdminDashboard({ displayName, email, signOutPath }: { di
               <TextField label="社交主页链接" value={content.contact.socialUrl} onChange={(value) => updateGroup("contact", "socialUrl", value)} />
             </EditorSection>
           </div>
-        ) : currentCollection ? (
+        ) : activeTab === "personalOverview" ? (
           <div className="admin-panel">
-            <div className="admin-panel-heading"><span>CONTENT MODULE</span><h1>{currentCollection.title}</h1><p>{currentCollection.description}</p></div>
+            <PanelHeading eyebrow="01 / PERSONAL WORLD" title="个人" description="前台个人世界的总览文案；能力、背书、输入、输出、实践与作品都已归入左侧个人分区。" />
+            <EditorSection title="个人世界概览">
+              <TextField label="个人章节简介" value={content.personalSummary} multiline onChange={(value) => setContent((previous) => ({ ...previous, personalSummary: value }))} />
+            </EditorSection>
+          </div>
+        ) : activeTab === "societyOverview" ? (
+          <div className="admin-panel">
+            <PanelHeading eyebrow="02 / SOCIAL WORLD" title="社会世界" description="前台社会世界的总览与结语；影响力数字和平台矩阵在左侧对应子项中维护。" />
+            <EditorSection title="社会世界概览">
+              <TextField label="章节简介" value={content.societySummary} multiline onChange={(value) => setContent((previous) => ({ ...previous, societySummary: value }))} />
+            </EditorSection>
+            <EditorSection title="社会世界结语">
+              <TextField label="标题" value={content.socialNote.title} onChange={(value) => updateGroup("socialNote", "title", value)} />
+              <TextField label="正文" value={content.socialNote.body} multiline onChange={(value) => updateGroup("socialNote", "body", value)} />
+            </EditorSection>
+          </div>
+        ) : activeTab === "natureOverview" ? (
+          <div className="admin-panel">
+            <PanelHeading eyebrow="03 / NATURAL WORLD" title="自然世界" description="前台自然世界的总览文案；身体、运动、感知和生活节律在左侧对应子项中维护。" />
+            <EditorSection title="自然世界概览">
+              <TextField label="章节简介" value={content.natureSummary} multiline onChange={(value) => setContent((previous) => ({ ...previous, natureSummary: value }))} />
+            </EditorSection>
+          </div>
+        ) : currentCollection ? (
+          <div className={`admin-panel ${currentCollection.key.endsWith("Assets") ? "is-asset-library" : ""}`}>
+            <PanelHeading eyebrow={currentCollection.eyebrow} title={currentCollection.title} description={currentCollection.description} />
+            {currentCollection.key === "works" ? (
+              <EditorSection title="作品模块导语">
+                <TextField label="前台代表作品简介" value={content.worksIntro} multiline onChange={(value) => setContent((previous) => ({ ...previous, worksIntro: value }))} />
+              </EditorSection>
+            ) : null}
+            {currentCollection.key.endsWith("Assets") ? <div className="admin-private-note"><span>PRIVATE / BACKEND ONLY</span><p>资产库不在前台公开展示，只保存在你的云端后台中。可随时新增、排序、修改或删除条目。</p></div> : null}
             <div className="admin-list">
               {(content[currentCollection.key] as unknown as Array<Record<string, string | string[]>>).map((row, index) => (
                 <article className="admin-list-item" key={`${currentCollection.key}-${index}`}>
@@ -212,6 +296,10 @@ export default function AdminDashboard({ displayName, email, signOutPath }: { di
       </section>
     </main>
   );
+}
+
+function PanelHeading({ eyebrow, title, description }: { eyebrow: string; title: string; description: string }) {
+  return <div className="admin-panel-heading"><span>{eyebrow}</span><h1>{title}</h1><p>{description}</p></div>;
 }
 
 function EditorSection({ title, children }: { title: string; children: React.ReactNode }) {
