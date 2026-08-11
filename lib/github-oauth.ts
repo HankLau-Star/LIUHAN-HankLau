@@ -200,6 +200,8 @@ export function beginGitHubOAuth(request: Request): Response {
   authorize.searchParams.set("scope", "read:user");
   authorize.searchParams.set("state", state);
   authorize.searchParams.set("allow_signup", "false");
+  const [suggestedLogin] = [...configuredAdminLogins()];
+  if (suggestedLogin) authorize.searchParams.set("login", suggestedLogin);
 
   const response = redirectResponse(authorize);
   response.headers.append("Set-Cookie", cookie(STATE_COOKIE, state, OAUTH_MAX_AGE, AUTH_COOKIE_PATH));
