@@ -25,6 +25,7 @@ export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("personal");
   const [musicPlaying, setMusicPlaying] = useState(false);
+  const [adminGateOpen, setAdminGateOpen] = useState(false);
   const [content, setContent] = useState<SiteContent>(defaultSiteContent);
   const soundtrackRef = useRef<HTMLAudioElement>(null);
   const musicSuppressedRef = useRef(false);
@@ -58,6 +59,20 @@ export default function Home() {
       .catch(() => undefined);
     return () => controller.abort();
   }, []);
+
+  useEffect(() => {
+    if (!adminGateOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setAdminGateOpen(false);
+    };
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [adminGateOpen]);
 
   useEffect(() => {
     const audio = soundtrackRef.current;
@@ -400,8 +415,30 @@ export default function Home() {
       <footer className="site-footer">
         <div className="brand footer-brand"><span className="brand-mark">HL</span><span>{content.brand.name}<small>{content.brand.subtitle}</small></span></div>
         <p>PERSON · SOCIETY · NATURE<br /><span>向内生长，向外创造。</span></p>
-        <div><span>© 2026</span><a href={soundtrackPage} target="_blank" rel="noreferrer" className="music-credit">MUSIC · BOMBINSOUND / PIXABAY</a><a href={adminHref} className="admin-entry">CONTENT CONSOLE</a><a href="#top">BACK TO TOP ↑</a></div>
+        <div><span>© 2026</span><a href={soundtrackPage} target="_blank" rel="noreferrer" className="music-credit">MUSIC · BOMBINSOUND / PIXABAY</a><button type="button" className="admin-entry" onClick={() => setAdminGateOpen(true)}>OWNER ACCESS</button><a href="#top">BACK TO TOP ↑</a></div>
       </footer>
+      {adminGateOpen ? (
+        <div className="admin-gate" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setAdminGateOpen(false); }}>
+          <section className="admin-gate-window" role="dialog" aria-modal="true" aria-labelledby="admin-gate-title">
+            <div className="admin-gate-scan" aria-hidden="true" />
+            <header>
+              <span><i /> OWNER AUTHENTICATION</span>
+              <button type="button" aria-label="关闭管理员登录窗口" onClick={() => setAdminGateOpen(false)}>×</button>
+            </header>
+            <div className="admin-gate-body">
+              <small>LIUHAN / PRIVATE SYSTEM</small>
+              <h2 id="admin-gate-title">进入个人综合管理</h2>
+              <p>后台仅向网站所有者开放。点击验证后，将在 GitHub 官方页面输入账号与密码；本站不会读取或保存你的密码。</p>
+              <div className="admin-gate-identity">
+                <span><small>AUTHORIZED ACCOUNT</small><strong>HankLau-Star</strong></span>
+                <span><small>SECURITY</small><strong>GITHUB OAUTH · ENCRYPTED</strong></span>
+              </div>
+              <a className="admin-gate-action" href={adminHref}><span>验证账号密码</span><b>ENTER CONSOLE ↗</b></a>
+              <em>登录成功后进入“个人综合管理”，可修改前台内容与个人资产。</em>
+            </div>
+          </section>
+        </div>
+      ) : null}
     </>
   );
 }
