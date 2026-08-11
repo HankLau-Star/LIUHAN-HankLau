@@ -125,6 +125,12 @@ test("front page and protected admin routes are wired", async () => {
   assert.match(page, /id="works"/);
   assert.match(page, /CONTENT CONSOLE/);
   assert.match(page, /publicContentEndpoint/);
+  assert.match(page, /adminGateOpen/);
+  assert.match(page, /OWNER ACCESS/);
+  assert.match(page, /role="dialog"/);
+  assert.match(page, /验证账号密码/);
+  assert.match(page, /本站不会读取或保存你的密码/);
+  assert.match(page, /href=\{adminHref\}/);
   assert.match(adminPage, /requireAdminUser/);
   assert.match(publicApi, /Access-Control-Allow-Origin/);
   assert.match(adminApi, /getAuthorizedAdmin/);
