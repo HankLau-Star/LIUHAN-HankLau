@@ -23,6 +23,9 @@ test("default content contains the complete portfolio structure", () => {
   assert.equal(defaultSiteContent.contact.emailUrl, "mailto:veritasrensheng@gmail.com");
   assert.equal(defaultSiteContent.contact.socialUrl, "https://linktr.ee/HankLau");
   assert.match(defaultSiteContent.contact.body, /保持开放，快速成长/);
+  assert.equal(defaultSiteContent.spiritualAssets[0].category, "精神资产");
+  assert.equal(defaultSiteContent.physicalAssets[0].category, "实物资产");
+  assert.equal(defaultSiteContent.workAssets[0].category, "作品资产");
 });
 
 test("content normalization blocks unsafe links and limits collections", () => {
@@ -43,6 +46,14 @@ test("content normalization blocks unsafe links and limits collections", () => {
       emailUrl: "mailto:hello@example.com",
       socialUrl: "javascript:alert(1)",
     },
+    spiritualAssets: Array.from({ length: 120 }, (_, index) => ({
+      title: `精神资产 ${index}`,
+      category: "方法论",
+      status: "持续沉淀",
+      detail: "测试",
+      value: "",
+      url: index === 0 ? "javascript:alert(3)" : "https://example.com/asset",
+    })),
   });
 
   assert.equal(content.outputs.length, 18);
@@ -52,6 +63,28 @@ test("content normalization blocks unsafe links and limits collections", () => {
   assert.equal(content.works[1].url, "https://example.com/work");
   assert.equal(content.contact.emailUrl, "mailto:hello@example.com");
   assert.equal(content.contact.socialUrl, "");
+  assert.equal(content.spiritualAssets.length, 100);
+  assert.equal(content.spiritualAssets[0].url, "");
+  assert.equal(content.spiritualAssets[1].url, "https://example.com/asset");
+});
+
+test("the content console mirrors the three frontend worlds and includes a private asset library", async () => {
+  const [admin, css] = await Promise.all([
+    readFile(new URL("../app/admin/AdminDashboard.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+  ]);
+
+  assert.match(admin, /PERSONAL WORLD/);
+  assert.match(admin, /SOCIAL WORLD/);
+  assert.match(admin, /NATURAL WORLD/);
+  assert.match(admin, /个人精神资产/);
+  assert.match(admin, /个人实物资产/);
+  assert.match(admin, /个人作品资产/);
+  assert.match(admin, /PRIVATE \/ BACKEND ONLY/);
+  assert.match(css, /\.admin-nav-group\.is-assets/);
+  assert.match(css, /\.work-card h3 \{/);
+  assert.match(css, /text-overflow: ellipsis/);
+  assert.match(css, /white-space: nowrap/);
 });
 
 test("front page and protected admin routes are wired", async () => {
