@@ -128,10 +128,14 @@ test("front page and protected admin routes are wired", async () => {
   assert.match(page, /adminGateOpen/);
   assert.match(page, /OWNER ACCESS/);
   assert.match(page, /role="dialog"/);
-  assert.match(page, /验证账号密码/);
+  assert.match(page, /使用 GitHub 安全登录/);
   assert.match(page, /本站不会读取或保存你的密码/);
-  assert.match(page, /href=\{adminHref\}/);
-  assert.match(adminPage, /requireAdminUser/);
+  assert.match(page, /href=\{adminSignInHref\}/);
+  assert.match(adminPage, /getAdminUser/);
+  assert.match(adminPage, /adminSignInPath/);
+  assert.match(adminPage, /HankLau-Star/);
+  assert.match(adminPage, /电脑和手机浏览器均支持/);
+  assert.doesNotMatch(adminPage, /requireAdminUser/);
   assert.match(publicApi, /Access-Control-Allow-Origin/);
   assert.match(adminApi, /getAuthorizedAdmin/);
 });
@@ -236,7 +240,8 @@ test("the GitHub Pages workflow exports only static routes and keeps the hosted 
     readFile(new URL("../.github/workflows/deploy-pages.yml", import.meta.url), "utf8"),
   ]);
 
-  assert.match(page, /const adminHref = basePath \? `\$\{contentApiOrigin\}\/admin` : "\/admin"/);
+  assert.match(page, /const adminAuthPath = "\/api\/auth\/github\/start\?returnTo=%2Fadmin"/);
+  assert.match(page, /const adminSignInHref = basePath \? `\$\{contentApiOrigin\}\$\{adminAuthPath\}` : adminAuthPath/);
   assert.match(page, /NEXT_PUBLIC_CONTENT_API/);
   assert.match(workflow, /mv app\/api _pages-api/);
   assert.match(workflow, /mv app\/admin _pages-admin/);
@@ -275,6 +280,7 @@ test("owner-controlled Cloudflare hosting uses free D1, owner-only GitHub OAuth,
   assert.match(githubOAuth, /crypto\.subtle\.verify\(\s*"HMAC"/);
   assert.match(githubOAuth, /configuredAdminLogins\(\)\.has/);
   assert.match(githubOAuth, /scope", "read:user"/);
+  assert.match(githubOAuth, /authorize\.searchParams\.set\("login", suggestedLogin\)/);
   assert.match(githubOAuth, /SameSite=Lax/);
   assert.match(githubOAuth, /HttpOnly; Secure/);
   assert.match(githubOAuth, /https:\/\/github\.com\/login\/oauth\/access_token/);
