@@ -77,7 +77,7 @@ test("content normalization blocks unsafe links and limits collections", () => {
   assert.equal(content.spiritualAssets[1].mediaUrl, "https://media.example.com/asset.pdf");
 });
 
-test("the content console mirrors the three frontend worlds and includes a private asset library", async () => {
+test("the content console mirrors the three frontend worlds and includes comprehensive personal management", async () => {
   const [admin, css] = await Promise.all([
     readFile(new URL("../app/admin/AdminDashboard.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
@@ -86,6 +86,12 @@ test("the content console mirrors the three frontend worlds and includes a priva
   assert.match(admin, /PERSONAL WORLD/);
   assert.match(admin, /SOCIAL WORLD/);
   assert.match(admin, /NATURAL WORLD/);
+  assert.match(admin, /个人综合管理/);
+  assert.match(admin, /PERSONAL OPERATING SYSTEM/);
+  assert.match(admin, /personalManagement/);
+  assert.match(admin, /personalCredibility/);
+  assert.match(admin, /个人实力与背书/);
+  assert.match(admin, /sectionLabel: "个人资产库"/);
   assert.match(admin, /个人精神资产/);
   assert.match(admin, /个人实物资产/);
   assert.match(admin, /个人作品资产/);
@@ -95,8 +101,11 @@ test("the content console mirrors the three frontend worlds and includes a priva
   assert.match(admin, /视频作品/);
   assert.match(admin, /图片作品/);
   assert.match(admin, /AssetUploadHub/);
+  assert.match(admin, /CollectionEditorBlock/);
   assert.match(admin, /storageReady/);
-  assert.match(css, /\.admin-nav-group\.is-assets/);
+  assert.match(css, /\.admin-nav-group\.is-management/);
+  assert.match(css, /\.admin-management-grid/);
+  assert.match(css, /\.admin-management-collection/);
   assert.match(css, /\.admin-asset-upload-hub/);
   assert.match(css, /\.work-card h3 \{/);
   assert.match(css, /text-overflow: ellipsis/);
