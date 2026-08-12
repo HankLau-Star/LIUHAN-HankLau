@@ -321,6 +321,7 @@ test("owner-controlled Cloudflare hosting uses free D1, owner-only GitHub OAuth,
   assert.match(worker, /status: 206/);
   assert.match(worker, /serveVideoAsset\(request, env\.ASSETS\)/);
   assert.equal(wrangler.name, "liuhan-hanklau");
+  assert.equal(wrangler.assets.run_worker_first, true);
   assert.equal(wrangler.d1_databases[0].binding, "DB");
   assert.equal(wrangler.d1_databases[0].database_name, "liuhan-hanklau-db");
   assert.match(wrangler.d1_databases[0].database_id, /^[0-9a-f-]{36}$/);
