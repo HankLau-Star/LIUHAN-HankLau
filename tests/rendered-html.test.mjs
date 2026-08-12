@@ -266,8 +266,8 @@ test("the GitHub Pages workflow exports only static routes and keeps the hosted 
   assert.match(workflow, /NEXT_PUBLIC_BASE_PATH/);
 });
 
-test("owner-controlled Cloudflare hosting uses free D1, owner-only GitHub OAuth, and optional R2", async () => {
-  const [page, adminAuth, accessVerifier, githubOAuth, githubStart, githubCallback, uploadRoute, mediaRoute, wranglerSource, hostingSource, migration] = await Promise.all([
+test("owner-controlled Cloudflare hosting uses free D1, owner-only GitHub OAuth, optional R2, and range-safe videos", async () => {
+  const [page, adminAuth, accessVerifier, githubOAuth, githubStart, githubCallback, uploadRoute, mediaRoute, worker, wranglerSource, hostingSource, migration] = await Promise.all([
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../lib/admin-auth.ts", import.meta.url), "utf8"),
     readFile(new URL("../lib/cloudflare-access.ts", import.meta.url), "utf8"),
@@ -276,6 +276,7 @@ test("owner-controlled Cloudflare hosting uses free D1, owner-only GitHub OAuth,
     readFile(new URL("../app/api/auth/github/callback/route.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/api/admin/media/route.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/media/[...key]/route.ts", import.meta.url), "utf8"),
+    readFile(new URL("../worker/index.ts", import.meta.url), "utf8"),
     readFile(new URL("../wrangler.jsonc", import.meta.url), "utf8"),
     readFile(new URL("../.openai/hosting.json", import.meta.url), "utf8"),
     readFile(new URL("../drizzle/0001_unique_hellion.sql", import.meta.url), "utf8"),
@@ -312,6 +313,9 @@ test("owner-controlled Cloudflare hosting uses free D1, owner-only GitHub OAuth,
   assert.match(uploadRoute, /assetTypeFor/);
   assert.match(uploadRoute, /bucket\.put/);
   assert.match(mediaRoute, /bucket\.get/);
+  assert.match(worker, /request\.method === "GET" \|\| request\.method === "HEAD"/);
+  assert.match(worker, /endsWith\("\.mp4"\)/);
+  assert.match(worker, /env\.ASSETS\.fetch\(request\)/);
   assert.equal(wrangler.name, "liuhan-hanklau");
   assert.equal(wrangler.d1_databases[0].binding, "DB");
   assert.equal(wrangler.d1_databases[0].database_name, "liuhan-hanklau-db");

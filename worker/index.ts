@@ -31,6 +31,13 @@ const worker = {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(request.url);
 
+    // Preserve HTTP Range headers for mobile Safari/Chrome video streaming.
+    // Routing MP4 files through the app handler can turn a partial request into
+    // a full-file 200 response, which delays or prevents playback on phones.
+    if ((request.method === "GET" || request.method === "HEAD") && url.pathname.toLowerCase().endsWith(".mp4")) {
+      return env.ASSETS.fetch(request);
+    }
+
     if (url.pathname === "/_vinext/image") {
       const allowedWidths = [...DEFAULT_DEVICE_SIZES, ...DEFAULT_IMAGE_SIZES];
       return handleImageOptimization(request, {
