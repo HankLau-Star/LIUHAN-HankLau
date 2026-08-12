@@ -113,8 +113,9 @@ test("the content console mirrors the three frontend worlds and includes compreh
 });
 
 test("front page and protected admin routes are wired", async () => {
-  const [page, adminPage, publicApi, adminApi] = await Promise.all([
+  const [page, layout, adminPage, publicApi, adminApi] = await Promise.all([
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/layout.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/admin/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/api/site/route.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/api/admin/site/route.ts", import.meta.url), "utf8"),
@@ -131,6 +132,8 @@ test("front page and protected admin routes are wired", async () => {
   assert.match(page, /使用 GitHub 安全登录/);
   assert.match(page, /本站不会读取或保存你的密码/);
   assert.match(page, /href=\{adminSignInHref\}/);
+  assert.equal(layout.match(/刘涵 · 류한｜LIUHAN · HankLau/g)?.length, 4);
+  assert.doesNotMatch(layout, /ASCENDER｜LIUHAN · HankLau/);
   assert.match(adminPage, /getAdminUser/);
   assert.match(adminPage, /adminSignInPath/);
   assert.match(adminPage, /HankLau-Star/);
