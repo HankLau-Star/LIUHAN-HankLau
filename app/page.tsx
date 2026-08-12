@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type MouseEvent } from "react";
 import { defaultSiteContent, normalizeSiteContent, type SiteContent } from "../lib/site-content";
 
 const navItems = [
@@ -47,6 +47,24 @@ export default function Home() {
       musicSuppressedRef.current = true;
       audio.pause();
       setMusicPlaying(false);
+    }
+  };
+
+  const resumeNarrativeVideo = async (event: MouseEvent<HTMLButtonElement>) => {
+    event.stopPropagation();
+    const layer = event.currentTarget.closest<HTMLElement>(".site-video-layer");
+    const video = layer?.querySelector<HTMLVideoElement>("video");
+    if (!layer || !video) return;
+    layer.dataset.userActivated = "true";
+    video.muted = true;
+    video.defaultMuted = true;
+    video.playsInline = true;
+    try {
+      await video.play();
+      layer.classList.remove("needs-play");
+      layer.classList.add("is-playing");
+    } catch {
+      layer.classList.add("needs-play");
     }
   };
 
@@ -118,7 +136,6 @@ export default function Home() {
   useEffect(() => {
     const root = document.documentElement;
     let frame = 0;
-    let activeNarrative = "";
     const narrativeVideos = Array.from(document.querySelectorAll<HTMLElement>(".site-video-layer[data-section]")).map((layer) => ({
       id: layer.dataset.section ?? "",
       layer,
@@ -127,6 +144,14 @@ export default function Home() {
     }));
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+    narrativeVideos.forEach(({ video }) => {
+      if (!video) return;
+      video.muted = true;
+      video.defaultMuted = true;
+      video.playsInline = true;
+      video.setAttribute("muted", "");
+      video.setAttribute("playsinline", "");
+    });
     const updatePointer = (event: PointerEvent) => {
       if (!finePointer) return;
       cancelAnimationFrame(frame);
@@ -140,23 +165,48 @@ export default function Home() {
         root.style.setProperty("--hero-title-light", `${Math.round((event.clientX / window.innerWidth) * 100)}%`);
       });
     };
+    const requestNarrativePlayback = (layer: HTMLElement, video: HTMLVideoElement) => {
+      if (reduceMotion && layer.dataset.userActivated !== "true") {
+        layer.classList.add("needs-play");
+        return;
+      }
+      video.muted = true;
+      video.defaultMuted = true;
+      video.playsInline = true;
+      void video.play().then(() => {
+        layer.classList.remove("needs-play");
+        layer.classList.add("is-playing");
+      }).catch(() => {
+        layer.classList.remove("is-playing");
+        layer.classList.add("needs-play");
+      });
+    };
     const syncNarrativeVideos = () => {
       const focusLine = window.innerHeight * 0.46;
-      const next = reduceMotion ? undefined : narrativeVideos.find(({ section }) => {
+      const next = narrativeVideos.find(({ section }) => {
         if (!section) return false;
         const bounds = section.getBoundingClientRect();
         return bounds.top <= focusLine && bounds.bottom >= focusLine;
       });
       const nextId = next?.id ?? "";
-      if (nextId === activeNarrative) return;
-      activeNarrative = nextId;
       narrativeVideos.forEach(({ id, layer, video }) => {
         const shouldPlay = id === nextId;
         layer.classList.toggle("is-active", shouldPlay);
         if (!video) return;
-        if (shouldPlay) video.play().catch(() => undefined);
-        else video.pause();
+        if (shouldPlay) {
+          if (video.readyState === HTMLMediaElement.HAVE_NOTHING) video.load();
+          if (video.paused) requestNarrativePlayback(layer, video);
+        } else {
+          video.pause();
+          layer.classList.remove("needs-play", "is-playing");
+        }
       });
+    };
+    const resumeActiveNarrative = () => {
+      const active = narrativeVideos.find(({ layer }) => layer.classList.contains("is-active"));
+      if (!active?.video || !active.layer.classList.contains("needs-play")) return;
+      active.layer.dataset.userActivated = "true";
+      requestNarrativePlayback(active.layer, active.video);
     };
     const updateScroll = () => {
       const range = document.documentElement.scrollHeight - window.innerHeight;
@@ -178,6 +228,7 @@ export default function Home() {
     document.querySelectorAll(".reveal").forEach((item) => revealObserver.observe(item));
     document.querySelectorAll("main section[id]").forEach((item) => sectionObserver.observe(item));
     window.addEventListener("pointermove", updatePointer, { passive: true });
+    window.addEventListener("pointerdown", resumeActiveNarrative, { passive: true });
     window.addEventListener("scroll", updateScroll, { passive: true });
     updateScroll();
 
@@ -186,10 +237,12 @@ export default function Home() {
       revealObserver.disconnect();
       sectionObserver.disconnect();
       narrativeVideos.forEach(({ layer, video }) => {
-        layer.classList.remove("is-active");
+        layer.classList.remove("is-active", "needs-play", "is-playing");
+        delete layer.dataset.userActivated;
         video?.pause();
       });
       window.removeEventListener("pointermove", updatePointer);
+      window.removeEventListener("pointerdown", resumeActiveNarrative);
       window.removeEventListener("scroll", updateScroll);
     };
   }, [content]);
@@ -263,6 +316,7 @@ export default function Home() {
           <video aria-hidden="true" muted loop playsInline preload="metadata">
             <source src={`${basePath}/ins-viral-video.mp4`} type="video/mp4" />
           </video>
+          <button className="site-video-resume" type="button" onClick={resumeNarrativeVideo}><i />播放动态背景</button>
           <span className="site-video-credit"><i /><b>我的原创 AI 作品</b><small>INSTAGRAM · 150万播放量</small></span>
         </div>
 
@@ -270,6 +324,7 @@ export default function Home() {
           <video aria-hidden="true" muted loop playsInline preload="metadata">
             <source src={`${basePath}/ue-first-project.mp4`} type="video/mp4" />
           </video>
+          <button className="site-video-resume" type="button" onClick={resumeNarrativeVideo}><i />播放动态背景</button>
           <span className="site-video-credit"><i /><b>我的首个虚幻引擎 UE 作品</b><small>UNREAL ENGINE · FIRST PROJECT</small></span>
         </div>
 
@@ -277,6 +332,7 @@ export default function Home() {
           <video aria-hidden="true" muted loop playsInline preload="metadata">
             <source src={`${basePath}/chopsticks-ai-film.mp4`} type="video/mp4" />
           </video>
+          <button className="site-video-resume" type="button" onClick={resumeNarrativeVideo}><i />播放动态背景</button>
           <span className="site-video-credit"><i /><b>我的首个 AI 全流程电影</b><small>《一双筷子》 · ORIGINAL FILM</small></span>
         </div>
 

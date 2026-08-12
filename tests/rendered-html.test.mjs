@@ -155,6 +155,9 @@ test("each world has its own optimized muted video backdrop", async () => {
   assert.match(page, /data-section="society"/);
   assert.match(page, /data-section="nature"/);
   assert.match(page, /<video aria-hidden="true" muted loop playsInline/);
+  assert.match(page, /video\.defaultMuted = true/);
+  assert.match(page, /resumeActiveNarrative/);
+  assert.equal(page.match(/site-video-resume/g)?.length, 3);
   assert.match(page, /我的原创 AI 作品/);
   assert.match(page, /150万播放量/);
   assert.match(page, /我的首个虚幻引擎 UE 作品/);
@@ -165,6 +168,7 @@ test("each world has its own optimized muted video backdrop", async () => {
   for (const video of [personalVideo, societyVideo, natureVideo]) {
     assert.equal(video.subarray(4, 8).toString("ascii"), "ftyp");
     assert.ok(video.length > 1_000_000);
+    assert.ok(video.indexOf(Buffer.from("moov")) < video.indexOf(Buffer.from("mdat")));
   }
   assert.ok(natureVideo.length < 5_000_000);
 });
@@ -204,8 +208,11 @@ test("the licensed Sport Version 1 soundtrack autoplays with a browser-policy fa
   assert.match(page, /BOMBINSOUND \/ PIXABAY/);
 });
 
-test("the phone homepage has an isolated responsive composition", async () => {
-  const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+test("the phone homepage and narrative videos have an isolated responsive composition", async () => {
+  const [css, page] = await Promise.all([
+    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+    readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
+  ]);
   const mobile = css.split("/* Phone-only home adaptation: desktop rules above remain unchanged. */")[1] ?? "";
 
   assert.match(mobile, /@media \(max-width: 680px\)/);
@@ -213,6 +220,15 @@ test("the phone homepage has an isolated responsive composition", async () => {
   assert.match(mobile, /object-position: 50% 18%/);
   assert.match(mobile, /font-size: clamp\(3rem, 15vw, 4\.8rem\)/);
   assert.match(mobile, /env\(safe-area-inset-top\)/);
+  assert.match(mobile, /opacity: \.84/);
+  assert.match(mobile, /\.site-video-layer video/);
+  assert.match(mobile, /height: 100dvh/);
+  assert.match(mobile, /opacity: \.9/);
+  assert.match(mobile, /\.site-video-layer\[data-world="society"\] video/);
+  assert.match(mobile, /\.site-video-layer\[data-world="nature"\] video/);
+  assert.match(css, /\.site-video-layer\.is-active\.needs-play \.site-video-resume/);
+  assert.doesNotMatch(css, /\.site-video-layer \{ display: none; \}/);
+  assert.match(page, /requestNarrativePlayback/);
   assert.match(mobile, /@media \(max-width: 390px\)/);
   assert.match(mobile, /orientation: landscape/);
 });
