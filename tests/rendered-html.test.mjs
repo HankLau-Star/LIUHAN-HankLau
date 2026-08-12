@@ -315,7 +315,11 @@ test("owner-controlled Cloudflare hosting uses free D1, owner-only GitHub OAuth,
   assert.match(mediaRoute, /bucket\.get/);
   assert.match(worker, /request\.method === "GET" \|\| request\.method === "HEAD"/);
   assert.match(worker, /endsWith\("\.mp4"\)/);
-  assert.match(worker, /env\.ASSETS\.fetch\(request\)/);
+  assert.match(worker, /requestedByteRange/);
+  assert.match(worker, /"Accept-Ranges", "bytes"/);
+  assert.match(worker, /"Content-Range"/);
+  assert.match(worker, /status: 206/);
+  assert.match(worker, /serveVideoAsset\(request, env\.ASSETS\)/);
   assert.equal(wrangler.name, "liuhan-hanklau");
   assert.equal(wrangler.d1_databases[0].binding, "DB");
   assert.equal(wrangler.d1_databases[0].database_name, "liuhan-hanklau-db");
